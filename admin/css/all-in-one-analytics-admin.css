@@ -1,0 +1,55 @@
+/**
+ * All of the CSS for your admin-specific functionality should be
+ * included in this file.
+ */
+
+.col-xs-12 .exopite-sof-field {
+    padding-left: 5% !important;
+    padding-right: 5% !important;
+    padding-top: 2% !important;
+}
+
+.col-xs-12.exopite-sof-col-lg .exopite-sof-field .exopite-sof-title {
+    padding-bottom: 2% !important;
+}
+
+.exopite-sof-accordion div.exopite-sof-cloneable-data {
+    display: none;
+}
+
+.exopite-sof-group .exopite-sof-field:not(:last-child) {
+    padding-bottom: 2% !important;
+}
+
+.checkbox__input:checked + .checkbox__switch, .checkbox__switch, .checkbox__switch:after {
+    border-radius: 50px !important;
+}
+
+/*
+@media (min-width: 992px){
+    .col-lg-6 {
+        max-width: 30%!important;
+    }
+}*/
+div.exopite-sof-fieldset div.container div.row .exopite-sof-col-lg.col-lg-12.col-xs-12.col .exopite-sof-field.exopite-sof-field-switcher {
+    margin-left: -5%;
+}
+
+div.exopite-sof-fieldset div.container div.row div.exopite-sof-col-lg.col-lg-12.col-xs-12.col div.exopite-sof-field-text.exopite-sof-field {
+    margin-left: -5%;
+}
+
+@media only screen and (min-width: 1000px) {
+    .exopite-sof-field .exopite-sof-fieldset {
+        margin-left: 0%;
+    }
+}
+
+.settings_page_all-in-one-analytics .all-in-one-analytics-options div div.exopite-sof-accordion__item div.exopite-sof-accordion__content.exopite-sof-sub-dependencies {
+    margin-left: 5%;
+}
+
+.settings_page_all-in-one-analytics .exopite-sof-sub-dependencies .exopite-sof-group.exopite-sof-accordion .exopite-sof-accordion__item div div.exopite-sof-field-text.exopite-sof-field input[type='text'] {
+    margin-left: 5%;
+    max-width: 75%;
+}
