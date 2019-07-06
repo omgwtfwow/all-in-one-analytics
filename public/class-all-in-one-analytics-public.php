@@ -172,7 +172,7 @@ class All_In_One_Analytics_Public {
 		$properties  = All_In_One_Analytics_Encrypt::encrypt_decrypt( $properties, 'e' );
 		$data_id     = wp_rand( 1, 1000 ) . str_shuffle( $action_hook );
 		All_In_One_Analytics::insert_data_into_db( $data_id, $properties );
-		All_In_One_Analytics_Cookie::set_cookie( 'product_removed', $data_id );
+		All_In_One_Analytics_Cookie::set_cookie( 'product_removed', $data_id, $expiration = 0, $data_id );
 	}
 
 	public function product_readded( ...$args ) {
@@ -187,7 +187,7 @@ class All_In_One_Analytics_Public {
 		$properties  = All_In_One_Analytics_Encrypt::encrypt_decrypt( $properties, 'e' );
 		$data_id     = wp_rand( 1, 1000 ) . str_shuffle( $action_hook );
 		All_In_One_Analytics::insert_data_into_db( $data_id, $properties );
-		All_In_One_Analytics_Cookie::set_cookie( 'product_readded', $data_id );
+		All_In_One_Analytics_Cookie::set_cookie( 'product_readded', $data_id, $expiration = 0, $data_id );
 	}
 
 	public function coupon_added( ...$args ) {
