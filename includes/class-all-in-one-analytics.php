@@ -1044,40 +1044,50 @@ class All_In_One_Analytics {
 		}
 
 		//NINJA FORMS
-		if ( $action_hook == "ninja_forms_after_submission" && ! wp_doing_ajax() ) {
+		if ( $action_hook == "ninja_forms_after_submission" ) {
 			//get from hidden field marked uid
-			foreach ( $data["args"][0]["fields_by_key"] as $key => $value ) {
+			if ( current_action() == 'wp_footer' ) { //this is reduntant TODO refactor to avoid searching uid twice
+				if ( isset( $data["userId"] ) ) {
+					$user_id = $data["userId"];
 
-				if ( self::starts_with( $key, 'aio_id' ) ) {
-					if ( is_email( $value ) ) {
-						if ( email_exists( $value ) ) {
-							$user_id = email_exists( $value );
+					return $user_id;
+				}
+			}
+			if ( current_action() !== 'wp_footer' ) {
+				foreach ( $data["args"][0]["fields_by_key"] as $key => $value ) {
+
+					if ( self::starts_with( $key, 'aio_id' ) ) {
+						if ( is_email( $value ) ) {
+							if ( email_exists( $value ) ) {
+								$user_id = email_exists( $value );
+
+								return $user_id;
+							}
+						}
+						if ( is_email( $value ) ) {
+							if ( email_exists( $value ) ) {
+								$user_id = email_exists( $value );
+
+								return $user_id;
+							}
+
+							if ( username_exists( $value ) ) {
+								$user_id = username_exists( $value );
+
+								return $user_id;
+							}
+
+						}
+
+						if ( $value instanceof WP_User ) {
+							$user_id = $value->ID;
+
 							return $user_id;
 						}
-					}
-					if ( is_email( $value ) ) {
-						if ( email_exists( $value ) ) {
-							$user_id = email_exists( $value );
-							return $user_id;
-						}
-
-						if ( username_exists( $value ) ) {
-							$user_id = username_exists( $value );
-
-							return $user_id;
-						}
-
-					}
-
-					if ( $value instanceof WP_User ) {
-						$user_id = $value->ID;
-
-						return $user_id;
 					}
 				}
 
 			}
-
 		}
 		//GRAVITY FORMS [0]=$entry [1]= $form
 
@@ -1287,6 +1297,11 @@ class All_In_One_Analytics {
 		}
 
 		if ( $action_hook === 'ninja_forms_after_submission' ) {
+
+			if ( isset( $args[0]["settings"]["title"] ) ) {
+				$properties['form_title'] = $args[0]["settings"]["title"];
+			}
+
 			//args[0]=$entry args[1]= $form and NF args[0]=form_data object
 			//extract values from each active field type and include key => value pairs in the track call
 			if ( isset( $args["args"][0]["fields_by_key"] ) ) {
@@ -1846,7 +1861,7 @@ class All_In_One_Analytics {
 		//TODO add gravity forms
 
 		if ( $settings["form_event_settings"]['track_gravity_forms_fieldset']['track_gravity_forms'] == "yes" ) {
-			if ( All_In_One_Analytics_Cookie::match_cookie( 'completed_form_nf' ) ) {
+			if ( All_In_One_Analytics_Cookie::match_cookie( 'completed_form_gf' ) ) {
 				$action     = 'ninja_forms_after_submission';
 				$http_event = 'completed_form_nf';
 				$event_name = self::get_event_name( $action );
