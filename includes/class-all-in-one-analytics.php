@@ -280,7 +280,7 @@ class All_In_One_Analytics {
 
 		//GRAVITY FORMS
 		if ( $settings["form_event_settings"]['track_gravity_forms_fieldset']['track_gravity_forms'] === 'yes' ) {
-			$this->loader->add_action( 'gform_after_submission', $plugin_track, 'render_segment_http_track', 9, 2 );
+			$this->loader->add_action( 'gform_after_submission', $plugin_track, 'completed_form_gf', 9, 2 );
 		}
 
 
@@ -738,18 +738,18 @@ class All_In_One_Analytics {
 
 			//CORE
 			"wp_login"                          => "Logged in",
-			"wp_insert_comment"                 => "Commented",
-			"user_register"                     => "Signed up",
+			"wp_insert_comment"                   => "Commented",
+			"user_register"                       => "Signed up",
 
 			//FORMS
-			"ninja_forms_after_submission"      => "Completed Form",
-			"gform_after_submission"            => "Completed Form",
+			"ninja_forms_after_submission"        => "Completed Form",
+			"gform_after_submission"              => "Completed Form",
 
 			//WOOCOMMERCE
-			"woocommerce_before_single_product" => "Product Viewed",
-			"is_product"                        => "Product Viewed",
-			"product_clicked"                   => "Product Clicked", //DIY
-			"woocommerce_add_to_cart"           => "Product Added",
+			"woocommerce_before_single_product"   => "Product Viewed",
+			"is_product"                          => "Product Viewed",
+			"product_clicked"                     => "Product Clicked", //DIY
+			"woocommerce_add_to_cart"             => "Product Added",
 			"woocommerce_ajax_added_to_cart"      => "Product Added",
 			"woocommerce_remove_cart_item"        => "Product Removed",
 			"woocommerce_cart_item_restored"      => "Product Readded",
@@ -1053,7 +1053,7 @@ class All_In_One_Analytics {
 					return $user_id;
 				}
 			}
-			if ( current_action() !== 'wp_footer' ) {
+			if ( isset( $data["args"][0]["fields_by_key"] ) ) {
 				foreach ( $data["args"][0]["fields_by_key"] as $key => $value ) {
 
 					if ( self::starts_with( $key, 'aio_id' ) ) {
@@ -1090,47 +1090,50 @@ class All_In_One_Analytics {
 			}
 		}
 		//GRAVITY FORMS [0]=$entry [1]= $form
-
+//TODO
 		if ( $action_hook == "gform_after_submission" ) {
-			$entry  = $data['args'][0];
-			$form   = $data['args'][1];
-			$fields = $form["fields"];
+			$entry                 = $data["args"][0];
+			$entry_id              = $entry['id'];
+			$form_id               = $data["args"][0]["form_id"];
+			$form                  = GFAPI::get_form( $form_id );
+			$entry                 = GFAPI::get_entry( $entry_id );
+			$properties["form_id"] = $form_id;
+			$fields                = $form["fields"];
+			foreach ( $fields as $key => $value ) {
+				if ( isset( $value->label ) && self::starts_with( $value->label, 'aio_id' ) ) {
 
-			//FIXME
-			foreach ( $fields as $field ) {
-				if ( $field["type"] == 'email' ) {
-					if ( isset( $field["id"] ) ) {
-						$email_field_id    = $field["id"];
-						$email_field_value = $entry[ $email_field_id ];
-						if ( email_exists( $email_field_value ) ) {
-							$user_id = email_exists( $email_field_value );
-
-							return $user_id;
-						}
-					}
-					if ( isset( $field["user_id"] ) ) {
-						$email_field_id    = $field["user_id"];
-						$email_field_value = $entry[ $email_field_id ];
-						if ( email_exists( $email_field_value ) ) {
-							$user_id = email_exists( $email_field_value );
+					if ( is_email( $value ) ) {
+						if ( email_exists( $value ) ) {
+							$user_id = email_exists( $value );
 
 							return $user_id;
 						}
 					}
-					if ( isset( $field["userId"] ) ) {
-						$email_field_id    = $field["userId"];
-						$email_field_value = $entry[ $email_field_id ];
-						if ( email_exists( $email_field_value ) ) {
-							$user_id = email_exists( $email_field_value );
+					if ( is_email( $value ) ) {
+						if ( email_exists( $value ) ) {
+							$user_id = email_exists( $value );
 
 							return $user_id;
 						}
+
+						if ( username_exists( $value ) ) {
+							$user_id = username_exists( $value );
+
+							return $user_id;
+						}
+
 					}
+
+					if ( $value instanceof WP_User ) {
+						$user_id = $value->ID;
+
+						return $user_id;
+					}
+
 				}
 			}
-			//	error_log( print_r($fields, TRUE) );
+
 		}
-		//if can't find it via action data, try to get one from cookie
 
 		//LEARNDASH
 		if ( $action_hook == 'learndash_update_course_access' ) {
@@ -1181,18 +1184,22 @@ class All_In_One_Analytics {
 		if ( ! isset ( $user_id ) && isset( $data['args']['cookie_user_id'] ) ) {
 			$cookie_user_id = stripslashes_deep( $data['args']['cookie_user_id'] );
 			if ( $cookie_user_id !== "" ) {
-				$user_id = (string) trim( $cookie_user_id, '"' );;
+				$user_id = trim( $cookie_user_id, '"' );
+
+				return $user_id;
 			}
 		}
 
 		if ( ! isset ( $user_id ) && isset( $_COOKIE["ajs_user_id"] ) ) {
 			$cookie_user_id = stripslashes_deep( $_COOKIE["ajs_user_id"] );
 			if ( $cookie_user_id !== "" ) {
-				$user_id = (string) trim( $cookie_user_id, '"' );;
+				$user_id = trim( $cookie_user_id, '"' );
+
+				return $user_id;
 			}
 		}
 
-		if ( ! isset ( $user_id ) && is_user_logged_in() ) {
+		if ( ! isset ( $user_id ) && is_user_logged_in() ) { //not sure if always
 			$user_id = get_current_user_id();
 
 			return $user_id;
@@ -1318,23 +1325,36 @@ class All_In_One_Analytics {
 		}
 
 		//TODO
-		if ( $action_hook === 'gform_after_submission' ) { // arg1=$entry $arg2= $form
+		if ( $action_hook === 'gform_after_submission' ) {
 
-			$entry_id                 = $args[0]['id'];
-			$form_id                  = $args[0];
-			$form_id                  = $form_id['form_id'];
-			$form                     = GFAPI::get_form( $form_id ); //since it's not passed as Obj correctly in $args
-			$entry                    = GFAPI::get_entry( $entry_id ); //since it's not passed as Obj correctly in $args
+			// arg1=$entry $arg2= $form
+
+			if ( isset( $action_current ) ) {
+				if ( $args["action_current"] == '‌wp_ajax_wp_all_in_one_analytics_async_events_process' ||
+				     $args["action_current"] == '‌wp_ajax_nopriv_wp_all_in_one_analytics_async_events_process' ) {
+					$entry_id = $args["args"][0]["id"];
+					$form_id  = $args["args"][0]["form_id"];
+				}
+			} else {
+				$entry_id = $args[0]['id'];
+				$form_id  = $args[0];
+				$form_id  = $form_id['form_id'];
+			}
+
+			if ( isset( $form_id ) && isset( $entry_id ) ) {
+
+				$form                 = GFAPI::get_form( $form_id );
+				$entry                = GFAPI::get_entry( $entry_id );
 			$properties["form_id"]    = $form_id;
 			$properties['source_url'] = $entry['source_url'];
 			$fields                   = $form['fields'];
 			foreach ( $fields as $field ) {
-				$field_type = $field['type'];
+				//	$field_type = $field['type'];
 				$field_id   = $field['id'];
 				$inputs     = rgar( $entry, $field_id );
 				if ( isset( $inputs ) ) {
 					foreach ( $inputs as $input ) {
-						$value = rgar( $entry, $field_id );
+						//	$value = rgar( $entry, $field_id );
 						if ( $input['id'] === '2.3' ) { //these ids arbritary set by GF https://docs.gravityforms.com/name/
 							$input['label'] = 'First Name';
 						}
@@ -1365,6 +1385,7 @@ class All_In_One_Analytics {
 			}
 
 			return array_filter( $properties );
+			}
 		}
 
 		if ( self::check_ecommerce_hook( $action_hook ) ) {
