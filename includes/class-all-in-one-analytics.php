@@ -1519,6 +1519,36 @@ class All_In_One_Analytics {
 			return array_filter( $properties );
 		}
 
+		if ( $action_hook === "learndash_quiz_completed" ) {
+
+			$properties["quiz_id"]             = $args["args"][0]["quiz"]["ID"];
+			$properties["quiz_title"]          = $args["args"][0]["quiz"]["post_title"];
+			$properties["quiz_name"]           = $args["args"][0]["quiz"]["post_name"];
+			$properties["quiz_author"]         = $args["args"][0]["quiz"]["post_author"];
+			$properties["quiz_url"]            = $args["args"][0]["quiz"]["guid"];
+			$properties["quiz_date_published"] = $args["args"][0]["quiz"]["post_date"];
+			$properties["quiz_score"]          = $args["args"][0]["score"];
+			$properties["quiz_count"]          = $args["args"][0]["count"];
+			$properties["quiz_pass"]           = $args["args"][0]["pass"];
+			$properties["quiz_time"]           = $args["args"][0]["time"];
+			$properties["quiz_points"]         = $args["args"][0]["total_points"];
+			$properties["quiz_percentage"]     = $args["args"][0]["percentage"];
+			$properties["quiz_time_spent"]     = $args["args"][0]["timespent"];
+			$properties["quiz_started"]        = $args["args"][0]["started"];
+			$properties["quiz_completed"]      = $args["args"][0]["completed"];
+
+			$properties["parent_lesson"]          = Array();
+			$properties["parent_lesson"]["ID"]    = $args["args"][0]["lesson"]["ID"];
+			$properties["parent_lesson"]["title"] = $args["args"][0]["lesson"]["post_title"];
+			$properties["parent_lesson"]["slug"]  = $args["args"][0]["lesson"]["post_name"];
+			$properties["parent_course"]          = Array();
+			$properties["parent_course"]["ID"]    = $args["args"][0]["course"]["ID"];
+			$properties["parent_course"]["title"] = $args["args"][0]["course"]["post_title"];
+			$properties["parent_course"]["slug"]  = $args["args"][0]["course"]["post_name"];
+
+			return array_filter( $properties );
+		}
+
 		//TODO QUIZZES
 		//TODO ASSIGNMENTS
 
