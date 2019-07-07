@@ -107,56 +107,6 @@ class All_In_One_Analytics_Track {
 		}
 	}
 
-	/**
-	 * Render the client side js track call
-	 */
-	function render_track_call_without_flag() {
-
-		if ( isset( $_SERVER["HTTP_X_REQUESTED_WITH"] ) ) { //Only render these for actual browsers
-			return;
-		}
-//
-		$current_user        = wp_get_current_user();
-		$user_id             = $current_user->ID;
-		$current_post        = get_post();
-		$trackable_user      = All_In_One_Analytics::check_trackable_user( $current_user );
-		$trackable_post_type = All_In_One_Analytics::check_trackable_post( $current_post );
-
-		if ( $trackable_user === false || $trackable_post_type === false ) {
-			//not trackable
-			return;
-		} else {
-			$tracks = All_In_One_Analytics::get_current_tracks();
-
-			foreach ( $tracks as $track ) {
-
-				$track = self::add_event_properties( $track, $user_id );
-				$track = apply_filters( 'filter_track_call', $track, $user_id );
-				//Devs, you can use this filter to change the track calls
-				if ( isset( $track['event'] ) ) {
-					?>
-                    <script type="text/javascript">
-
-                        analytics.track(<?php
-							echo '"' . All_In_One_Analytics::esc_js_deep( $track['event'] ) . '"';
-							?><?php
-							if ( ! empty( $track['properties'] ) ) {
-								echo ', ' . json_encode( All_In_One_Analytics::esc_js_deep( $track['properties'] ) );
-							} else {
-								echo ', {}';
-							}
-							?><?php
-							if ( ! empty( $track['options'] ) ) {
-								echo ', ' . json_encode( All_In_One_Analytics::esc_js_deep( $track['options'] ) );
-							}
-							?>);
-                    </script>
-					<?php
-
-				}
-			}
-		}
-	}
 
 	/**
 	 * Add  event properties
@@ -186,40 +136,6 @@ class All_In_One_Analytics_Track {
 		$track['options']['library']['version'] = 'in8.io';
 
 		return $track;
-	}
-
-	public function enqueue_scripts() {
-
-		if ( isset( $_SERVER["HTTP_X_REQUESTED_WITH"] ) ) { //Only render these for actual browsers
-			return;
-		}
-		$current_user        = wp_get_current_user();
-		$user_id             = $current_user->ID;
-		$current_post        = get_post();
-		$trackable_user      = All_In_One_Analytics::check_trackable_user( $current_user );
-		$trackable_post_type = All_In_One_Analytics::check_trackable_post( $current_post );
-
-		if ( $trackable_user === true && $trackable_post_type === true ) {
-
-			$tracks = All_In_One_Analytics::get_current_tracks();
-			foreach ( $tracks as &$track ) {
-				$track = self::add_event_properties( $track, $user_id );
-				$track = apply_filters( 'filter_track_call', $track, $user_id );
-				//Devs, you can use this filter to change the track calls
-				if ( ! isset( $track['event'] ) ) {
-					$track = null;
-				}
-
-			}
-			$tracks = array_filter( $tracks );
-		}
-		if ( isset( $tracks ) && ! empty( $tracks ) ) {
-			wp_enqueue_script( 'aio-analytics.js', plugin_dir_url( __FILE__ ) . 'js/all-in-one-analytics.js', array( 'jquery' ), $this->version, true );
-			wp_localize_script( 'aio-analytics.js', 'tracksAIO', array(
-				'init'   => ( 'init' ),
-				'tracks' => ( $tracks ),
-			) );
-		}
 	}
 
 
