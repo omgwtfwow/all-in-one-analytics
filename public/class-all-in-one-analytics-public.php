@@ -81,6 +81,11 @@ class All_In_One_Analytics_Public {
 	 */
 
 	public function made_comment( ...$args ) {
+		if ( isset( $args[1]->comment_author ) && $args[1]->comment_author == 'WooCommerce' ) {
+			//because Woo inserts a comment with order details
+			return;
+		}
+
 		$action_hook = current_action();
 		$args        = func_get_args();
 		$args        = array( 'action_hook' => current_action(), 'args' => json_decode( json_encode( $args ), true ) );
@@ -305,19 +310,40 @@ class All_In_One_Analytics_Public {
 	 *                 *
 	 */
 
-	public function enrolled( ...$args ) {
+	public function enrolled_in_course( ...$args ) {
 		//args	$user_id, $course_id, $access_list, $remove
+		$args = func_get_args();
+
+		if ( $args[3] || empty( $args[0] ) || empty( $args[1] ) ) {
+			return;
+		}
+
+		$user_id   = $args[0];
+		$course_id = $args[1];
+
+		$user = get_user_by( "id", $user_id );
+		if ( empty( $user->ID ) ) {
+			return;
+		}
+		$course = get_post( $course_id );
+		if ( empty( $course->ID ) ) {
+			return;
+		}
+
 		$action_hook = current_action();
-		$args        = func_get_args();
-		$args        = array( 'action_hook' => $action_hook, 'args' => json_decode( json_encode( $args ), true ) );
+		$args        = array(
+			'action_hook' => $action_hook,
+			'args'        => json_decode( json_encode( $args ), true )
+		);
 		$args        = All_In_One_Analytics::object_to_array( $args );
 		$user_id     = All_In_One_Analytics::get_user_id( $action_hook, $args );
 		$properties  = All_In_One_Analytics::get_event_properties( $action_hook, $user_id, $args );
 		$properties  = json_encode( $properties );
 		$properties  = All_In_One_Analytics_Encrypt::encrypt_decrypt( $properties, 'e' );
-		All_In_One_Analytics_Cookie::set_cookie( 'enrolled', $properties );
+		$data_id     = wp_rand( 1, 1000 ) . str_shuffle( $action_hook );
+		All_In_One_Analytics::insert_data_into_db( $data_id, $properties );
+		All_In_One_Analytics_Cookie::set_cookie( 'enrolled_in_course', $data_id );
 	}
-
 	public function topic_completed( ...$args ) {
 		$action_hook = current_action();
 		$args        = func_get_args();
@@ -367,7 +393,8 @@ class All_In_One_Analytics_Public {
 		$properties  = All_In_One_Analytics_Encrypt::encrypt_decrypt( $properties, 'e' );
 		$data_id     = wp_rand( 1, 1000 ) . str_shuffle( $action_hook );
 		All_In_One_Analytics::insert_data_into_db( $data_id, $properties );
-		All_In_One_Analytics_Cookie::set_cookie( 'course_completed', $properties, $data_id );
+		//All_In_One_Analytics_Cookie::set_cookie( 'course_completed', $properties, $data_id );
+		All_In_One_Analytics_Cookie::set_cookie( 'course_completed', $data_id );
 	}
 
 	//QUIZZES

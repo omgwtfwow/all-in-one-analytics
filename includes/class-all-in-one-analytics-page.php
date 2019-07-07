@@ -36,7 +36,7 @@ class All_In_One_Analytics_Page {
 		?>
 
         <script type="text/javascript">
-			analytics.page();
+            analytics.page();
         </script>
 		<?php
 
