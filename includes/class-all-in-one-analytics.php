@@ -273,10 +273,16 @@ class All_In_One_Analytics {
 			$this->loader->add_action( 'user_register', $plugin_public, 'signed_up', 9, 1 );
 		}
 
-		//FORMS
+		//NINJA FORMS
 		if ( $settings["form_event_settings"]['track_ninja_forms_fieldset']['track_ninja_forms'] === 'yes' ) {
-			$this->loader->add_action( 'ninja_forms_after_submission', $plugin_public, 'completed_form', 9, 1 );
+			$this->loader->add_action( 'ninja_forms_after_submission', $plugin_public, 'completed_form_nf', 9, 1 );
 		}
+
+		//GRAVITY FORMS
+		if ( $settings["form_event_settings"]['track_gravity_forms_fieldset']['track_gravity_forms'] === 'yes' ) {
+			$this->loader->add_action( 'gform_after_submission', $plugin_track, 'render_segment_http_track', 9, 2 );
+		}
+
 
 		//WOOCOMMERCE
 		if ( $settings["woocommerce_event_settings"]['track_woocommerce_fieldset']['track_woocommerce'] === 'yes' ) {
@@ -732,18 +738,18 @@ class All_In_One_Analytics {
 
 			//CORE
 			"wp_login"                          => "Logged in",
-			"wp_insert_comment"                   => "Commented",
-			"user_register"                       => "Signed up",
+			"wp_insert_comment"                 => "Commented",
+			"user_register"                     => "Signed up",
 
 			//FORMS
-			"ninja_forms_after_submission"        => "Completed Form",
-			"gform_after_submission"              => "Completed Form",
+			"ninja_forms_after_submission"      => "Completed Form",
+			"gform_after_submission"            => "Completed Form",
 
 			//WOOCOMMERCE
-			"woocommerce_before_single_product"   => "Product Viewed",
-			"is_product"                          => "Product Viewed",
-			"product_clicked"                     => "Product Clicked", //DIY
-			"woocommerce_add_to_cart"             => "Product Added",
+			"woocommerce_before_single_product" => "Product Viewed",
+			"is_product"                        => "Product Viewed",
+			"product_clicked"                   => "Product Clicked", //DIY
+			"woocommerce_add_to_cart"           => "Product Added",
 			"woocommerce_ajax_added_to_cart"      => "Product Added",
 			"woocommerce_remove_cart_item"        => "Product Removed",
 			"woocommerce_cart_item_restored"      => "Product Readded",
@@ -1037,76 +1043,39 @@ class All_In_One_Analytics {
 
 		}
 
-
-
-		/*
-		 This check for field email and user id field types/values
-		 If user match is found their user id is
-		 Checks field type = email, field label = user_id and field label = userId
-		 Ninja Forms*/
 		//NINJA FORMS
-		if ( $action_hook == "ninja_forms_after_submission" ) {
-			//extract values from each active field type and include key => value pairs in the track call
-			$fields = $data["args"][0]["fields"];
-			$keys   = array_keys( $fields );
-			foreach ( $keys as $key ) {
-				if ( $fields[ $key ]["type"] == "email" ) {
-					if ( email_exists( $fields[ $key ]["value"] ) ) {
-						$user_id = email_exists( $fields[ $key ]["value"] );
+		if ( $action_hook == "ninja_forms_after_submission" && ! wp_doing_ajax() ) {
+			//get from hidden field marked uid
+			foreach ( $data["args"][0]["fields_by_key"] as $key => $value ) {
+
+				if ( self::starts_with( $key, 'aio_id' ) ) {
+					if ( is_email( $value ) ) {
+						if ( email_exists( $value ) ) {
+							$user_id = email_exists( $value );
+							return $user_id;
+						}
+					}
+					if ( is_email( $value ) ) {
+						if ( email_exists( $value ) ) {
+							$user_id = email_exists( $value );
+							return $user_id;
+						}
+
+						if ( username_exists( $value ) ) {
+							$user_id = username_exists( $value );
+
+							return $user_id;
+						}
+
+					}
+
+					if ( $value instanceof WP_User ) {
+						$user_id = $value->ID;
 
 						return $user_id;
 					}
 				}
-				if ( ! is_user_logged_in() ) {
-					if ( isset( $fields[ $key ]["user_id"] ) ) {
-						$form_user_id = $fields[ $key ]["user_id"];
 
-						if ( email_exists( $form_user_id ) ) {
-
-							$user_id = email_exists( $form_user_id );
-
-							return $user_id;
-						}
-
-						if ( username_exists( $form_user_id ) ) {
-
-							$user_id = username_exists( $form_user_id );
-
-							return $user_id;
-						}
-
-
-					}
-					if ( isset( $fields[ $key ]["userId"] ) ) {
-						$form_user_id = $fields[ $key ]["userId"];
-
-						if ( email_exists( $form_user_id ) ) {
-
-							$user_id = email_exists( $form_user_id );
-
-							return $user_id;
-						}
-
-						if ( username_exists( $form_user_id ) ) {
-
-							$user_id = username_exists( $form_user_id );
-
-							return $user_id;
-						}
-
-
-						if ( isset( $user_id ) && $user_id !== 0 ) {
-
-							return $user_id;
-
-						}
-					}
-				}
-				if ( is_user_logged_in() ) {
-					$user_id = get_current_user_id();
-
-					return $user_id;
-				}
 			}
 
 		}
@@ -1173,7 +1142,6 @@ class All_In_One_Analytics {
 			}
 		}
 
-
 		if ( $action_hook == "learndash_lesson_completed" ) {
 
 			if ( isset( $data["args"][0]["user"]["ID"] ) ) {
@@ -1213,8 +1181,14 @@ class All_In_One_Analytics {
 				$user_id = (string) trim( $cookie_user_id, '"' );;
 			}
 		}
-		if ( ! isset( $user_id ) ) {
 
+		if ( ! isset ( $user_id ) && is_user_logged_in() ) {
+			$user_id = get_current_user_id();
+
+			return $user_id;
+		}
+
+		if ( ! isset( $user_id ) ) {
 			return null;
 		} else {
 			return $user_id;
@@ -1313,33 +1287,11 @@ class All_In_One_Analytics {
 		}
 
 		if ( $action_hook === 'ninja_forms_after_submission' ) {
-
+			//args[0]=$entry args[1]= $form and NF args[0]=form_data object
 			//extract values from each active field type and include key => value pairs in the track call
-			if ( isset( $args['args'][0]['fields'] ) ) {
-				$fields = $args['args'][0]['fields'];
-			}
-			if ( isset( $fields ) ) {
-				$keys = array_keys( $fields );
-				foreach ( $keys as $key ) {
-					if ( $fields[ $key ]["type"] !== "" && $fields[ $key ]["value"] !== "" && $fields[ $key ]["value"] !== null ) {
-						//if not empty or NULL
-						$field_type  = $fields[ $key ]["type"];
-						$field_value = $fields[ $key ]["value"];
-						$field_label = $fields[ $key ]["label"];
-						if ( $field_type === "firstname" ) {
-							$field_type                = "firstName";
-							$properties[ $field_type ] = $field_value;
-						}
-						if ( $field_type === "lastname" ) {
-							$field_type                = "lastName";
-							$properties[ $field_type ] = $field_value;
-						}
-						if ( $field_type === "email" ) {
-							$field_type                = "email";
-							$properties[ $field_type ] = $field_value;
-						}
-						$properties[ $field_label ] = $field_value;
-					}
+			if ( isset( $args["args"][0]["fields_by_key"] ) ) {
+				foreach ( $args["args"][0]["fields_by_key"] as $key => $value ) {
+					$properties[ $key ] = $value["value"];
 				}
 			}
 
@@ -1834,7 +1786,6 @@ class All_In_One_Analytics {
 		// COMMENTS
 		if ( $settings["core_event_settings"]['track_comments_fieldset']['track_comments'] == "yes" ) {
 			if ( All_In_One_Analytics_Cookie::match_cookie( 'made_comment' ) ) {
-
 				$action     = 'wp_insert_comment';
 				$http_event = 'made_comment';
 				$event_name = self::get_event_name( $action );
@@ -1864,67 +1815,72 @@ class All_In_One_Analytics {
 
 		}
 
-		// FORMS
+		// NINJA FORMS
+		if ( $settings["form_event_settings"]['track_ninja_forms_fieldset']['track_ninja_forms'] == "yes" ) {
+			if ( All_In_One_Analytics_Cookie::match_cookie( 'completed_form_nf' ) ) {
+				$action     = 'ninja_forms_after_submission';
+				$http_event = 'completed_form_nf';
+				$event_name = self::get_event_name( $action );
+				$cookies    = All_In_One_Analytics_Cookie::get_every_cookie( $http_event );
+				foreach ( $cookies as $cookie => $data ) {
+					$properties = self::get_data_from_data_id( $data );
+					$properties = All_In_One_Analytics_Encrypt::encrypt_decrypt( $properties, 'd' );
+					$properties = json_decode( $properties, true );
+					$properties = self::object_to_array( $properties );
+					$user_id    = self::get_user_id( $action, $properties );
+
+					$track[ $i ] = array(
+						'userId'     => $user_id,
+						'event'      => $event_name,
+						'properties' => $properties,
+						'http_event' => $http_event
+					);
+
+					$i ++;
+
+					//this adds item to an async queue to remove db entry
+					do_action( 'add_to_queue', $data );
+				}
+			}
+		}
 		//TODO add gravity forms
-		//FIXME
-		/*		if ( $settings["form_event_settings"]['track_ninja_forms_fieldset']['track_ninja_forms'] == "yes" || $settings["form_event_settings"]['track_gravity_forms_fieldset']['track_gravity_forms'] == "yes" ) {
-					if ( All_In_One_Analytics_Cookie::get_cookie( 'completed_form' ) ) {
 
+		if ( $settings["form_event_settings"]['track_gravity_forms_fieldset']['track_gravity_forms'] == "yes" ) {
+			if ( All_In_One_Analytics_Cookie::match_cookie( 'completed_form_nf' ) ) {
+				$action     = 'ninja_forms_after_submission';
+				$http_event = 'completed_form_nf';
+				$event_name = self::get_event_name( $action );
+				$cookies    = All_In_One_Analytics_Cookie::get_every_cookie( $http_event );
+				foreach ( $cookies as $cookie => $data ) {
+					$properties = self::get_data_from_data_id( $data );
+					$properties = All_In_One_Analytics_Encrypt::encrypt_decrypt( $properties, 'd' );
+					$properties = json_decode( $properties, true );
+					$properties = self::object_to_array( $properties );
+					$user_id    = self::get_user_id( $action, $properties );
 
-						$data_id    = All_In_One_Analytics_Cookie::get_cookie( 'completed_form' );
-						$http_event = 'completed_form';
-						$event_name     = self::get_event_name( $action );
+					$track[ $i ] = array(
+						'userId'     => $user_id,
+						'event'      => $event_name,
+						'properties' => $properties,
+						'http_event' => $http_event
+					);
 
-							$cookies = get_transient( $data_id );
-							if ( is_array( $cookies ) ) {
-								foreach ( $cookies as $cookie => $properties ) {
+					$i ++;
 
-									$properties = All_In_One_Analytics_Encrypt::encrypt_decrypt( $properties, 'd' );
-									$properties = json_decode( $properties, true );
-									$properties = All_In_One_Analytics::object_to_array( $properties );
-									$properties = All_In_One_Analytics::array_flatten( $properties );
-									$user_id = $properties["userId"];
+					//this adds item to an async queue to remove db entry
+					do_action( 'add_to_queue', $data );
 
-									$track[ $i ] = array(
-										'userId'     => $user_id,
-										'event'      => $event_name,
-										'properties' => $properties,
-										'http_event' => $http_event
-									);
+				}
+			}
+		}
 
-									$i ++;
-									delete_transient( $data_id );
-								}
-							} else {
-								$properties = All_In_One_Analytics_Encrypt::encrypt_decrypt( $cookies, 'd' );
-								$properties = json_decode( $properties, true );
-								$properties = All_In_One_Analytics::object_to_array( $properties );
-								$properties = All_In_One_Analytics::array_flatten( $properties );
-								$user_id    = $properties["userId"];
-
-								$track[ $i ] = array(
-									'userId'     => $user_id,
-									'event'      => $event_name,
-									'properties' => $properties,
-									'http_event' => $http_event
-								);
-
-								$i ++;
-
-							}
-
-
-
-					}
-				}*/
 
 		//WOOCOMMERCE
 		if ( $settings["woocommerce_event_settings"]['track_woocommerce_fieldset']['track_woocommerce'] === 'yes' ) {
 
 			if ( class_exists( 'woocommerce' ) ) {
 
-				//TODO add to menu
-				// PRODUCT VIEWED
+
 				if ( is_product() ) {
 					$action                     = 'is_product';
 					$event_name                 = self::get_event_name( $action );
@@ -1938,8 +1894,6 @@ class All_In_One_Analytics {
 
 				}
 
-				//TODO add to menu
-				// PRODUCT CLICKED
 				if ( is_product() && All_In_One_Analytics_Cookie::match_cookie( 'product_clicked' ) ) {
 					$action                     = 'product_clicked';
 					$event_name                 = self::get_event_name( $action );
@@ -2264,7 +2218,7 @@ class All_In_One_Analytics {
 		//LEARNDASH
 		if ( $settings["learndash_event_settings"]["track_learndash_fieldset"]["track_learndash"] === 'yes' ) {
 
-			// ENROLLMENTS
+			//ENROLLMENTS
 			if ( All_In_One_Analytics_Cookie::match_cookie( 'enrolled_in_course' ) ) {
 				$action     = 'learndash_update_course_access';
 				$http_event = 'enrolled_in_course';
@@ -2319,7 +2273,7 @@ class All_In_One_Analytics {
 
 			}
 
-			// TOPICS
+			//TOPICS
 			if ( All_In_One_Analytics_Cookie::match_cookie( 'topic_completed' ) ) {
 				$action     = 'learndash_topic_completed';
 				$http_event = 'topic_completed';
@@ -2849,12 +2803,12 @@ class All_In_One_Analytics {
 		$properties['backorders']        = $product->get_backorders();
 		$properties['sold_individually'] = $product->get_sold_individually();
 		//$properties['purchase_note']      = $product->get_purchase_note();
-		$properties['shipping_class']    = $product->get_shipping_class_id();
-		$properties['weight']            = $product->get_weight();
-		$properties['length']            = $product->get_length();
-		$properties['width']             = $product->get_width();
-		$properties['height']            = $product->get_height();
-		$properties['dimensions']        = $product->get_dimensions();
+		$properties['shipping_class'] = $product->get_shipping_class_id();
+		$properties['weight']         = $product->get_weight();
+		$properties['length']         = $product->get_length();
+		$properties['width']          = $product->get_width();
+		$properties['height']         = $product->get_height();
+		$properties['dimensions']     = $product->get_dimensions();
 		//	$properties['upsell_ids']        = json_encode($product->get_upsell_ids());
 		//	$properties['cross_sell_ids']    = json_encode($product->get_cross_sell_ids());
 		$properties['parent_id']         = $product->get_parent_id();
@@ -2870,10 +2824,10 @@ class All_In_One_Analytics {
 		$properties['image_id']        = $product->get_image_id();
 		//$properties['image']              = $product->get_image(); HTML
 		//	$properties['gallery_image_ids'] = json_encode($product->get_gallery_image_ids());
-		$properties['reviews_allowed']   = $product->get_reviews_allowed();
-		$properties['rating_count']      = $product->get_rating_counts();
-		$properties['average_rating']    = $product->get_average_rating();
-		$properties['review_count']      = $product->get_review_count();
+		$properties['reviews_allowed'] = $product->get_reviews_allowed();
+		$properties['rating_count']    = $product->get_rating_counts();
+		$properties['average_rating']  = $product->get_average_rating();
+		$properties['review_count']    = $product->get_review_count();
 
 		//clean and return
 		$properties = array_filter( $properties );
@@ -2950,6 +2904,21 @@ class All_In_One_Analytics {
 		}
 
 		return $return;
+	}
+
+	public static function starts_with( $haystack, $needle ) {
+		$length = strlen( $needle );
+
+		return ( substr( $haystack, 0, $length ) === $needle );
+	}
+
+	public static function ends_with( $haystack, $needle ) {
+		$length = strlen( $needle );
+		if ( $length == 0 ) {
+			return true;
+		}
+
+		return ( substr( $haystack, - $length ) === $needle );
 	}
 
 	/**

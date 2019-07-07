@@ -106,9 +106,9 @@ class All_In_One_Analytics_Identify {
 			$traits                    = array_filter( $traits );
 		}
 
-		if ( All_In_One_Analytics_Cookie::get_cookie( 'completed_form' ) ) {
+		if ( All_In_One_Analytics_Cookie::get_cookie( 'completed_form_nf' ) ) {
 
-			$properties = All_In_One_Analytics_Cookie::get_cookie( 'completed_form' );
+			$properties = All_In_One_Analytics_Cookie::get_cookie( 'completed_form_nf' );
 			$properties = All_In_One_Analytics_Encrypt::encrypt_decrypt( $properties, 'd' );
 			$properties = json_decode( $properties );
 			$properties = json_decode( json_encode( $properties ), true );
@@ -119,7 +119,7 @@ class All_In_One_Analytics_Identify {
 
 		}
 
-		/*	if ( All_In_One_Analytics_Cookie::get_cookie( 'completed_form' ) ) {
+		/*	if ( All_In_One_Analytics_Cookie::get_cookie( 'completed_form_nf' ) ) {
 				if ( isset( $properties['userId'] ) ) {
 				// $user_id = $properties['userId'];
 				// TODO add here how it can update user meta

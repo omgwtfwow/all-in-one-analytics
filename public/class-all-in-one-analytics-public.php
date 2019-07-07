@@ -143,7 +143,29 @@ class All_In_One_Analytics_Public {
 		All_In_One_Analytics_Cookie::set_cookie( 'signed_up', $properties );
 	}
 
-	public function completed_form( ...$args ) {    //GF  args[0]=$entry args[1]= $form and NF args[0]=form_data object
+	/** FORMS */
+	public function completed_form_nf( ...$args ) {
+
+		//$args[0]=$cart_item_key,$args[1]=$product_id,$args[2]=$quantity, $args[3]=$variation_id,$args[4]=$variation, $args[5]=$cart_item_data
+		$action_hook = current_action();
+		$args        = func_get_args();
+		$args        = array(
+			'action_hook' => current_action(),
+			'args'        => json_decode( json_encode( $args ),
+				true )
+		);
+		$args        = All_In_One_Analytics::object_to_array( $args );
+		$user_id     = All_In_One_Analytics::get_user_id( $action_hook, $args );
+		$properties  = All_In_One_Analytics::get_event_properties( $action_hook, $user_id, $args );
+		$properties  = json_encode( $properties );
+		$properties  = All_In_One_Analytics_Encrypt::encrypt_decrypt( $properties, 'e' );
+		$data_id     = wp_rand( 1, 1000 ) . str_shuffle( $action_hook );
+		All_In_One_Analytics::insert_data_into_db( $data_id, $properties );
+		All_In_One_Analytics_Cookie::set_cookie( 'completed_form_nf', $data_id );
+
+	}
+
+	public function completed_form_gf( ...$args ) {    //GF  args[0]=$entry args[1]= $form and NF args[0]=form_data object
 		$action_hook = current_action();
 		$args        = func_get_args();
 		$args        = array( 'action_hook' => current_action(), 'args' => json_decode( json_encode( $args ), true ) );
@@ -151,7 +173,7 @@ class All_In_One_Analytics_Public {
 		$properties  = All_In_One_Analytics::get_event_properties( $action_hook, $user_id, $args );
 		$properties  = json_encode( $properties );
 		$properties  = All_In_One_Analytics_Encrypt::encrypt_decrypt( $properties, 'e' );
-		All_In_One_Analytics_Cookie::set_cookie( 'completed_form', $properties );
+		All_In_One_Analytics_Cookie::set_cookie( 'completed_form_gf', $properties );
 
 	}
 
