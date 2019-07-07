@@ -311,8 +311,9 @@ class All_In_One_Analytics {
 
 			}
 			if ( $settings["learndash_event_settings"]["track_learndash_fieldset"]["track_quizzes_fieldset"]["track_quizzes"] ) {
-				$this->loader->add_action( 'learndash_quiz_completed', $plugin_public, 'quiz_completed', 9, 1 );
+				$this->loader->add_action( 'learndash_quiz_completed', $plugin_public, 'quiz_completed', 9, 2 );
 			}
+
 			if ( $settings["learndash_event_settings"]["track_learndash_fieldset"]["track_assignments_fieldset"]["track_assignments"] ) {
 				$this->loader->add_action( 'learndash_assignment_uploaded', $plugin_public, 'assignment_uploaded', 9, 1 );
 			}
@@ -2249,9 +2250,59 @@ class All_In_One_Analytics {
 
 					$i ++;
 
-					do_action( 'add_to_queue', $data ); //this adds them to an async queue to remove db entry
+					//	do_action( 'add_to_queue', $data ); //this adds them to an async queue to remove db entry
 
 				}
+				if ( All_In_One_Analytics_Cookie::match_cookie( 'quiz_passed' ) ) {
+					$http_event = 'quiz_passed';
+					$event_name = 'Quiz Passed';
+					$cookies    = All_In_One_Analytics_Cookie::get_every_cookie( $http_event );
+					foreach ( $cookies as $cookie => $data ) {
+						$properties  = self::get_data_from_data_id( $data );
+						$properties  = All_In_One_Analytics_Encrypt::encrypt_decrypt( $properties, 'd' );
+						$properties  = json_decode( $properties, true );
+						$properties  = self::object_to_array( $properties );
+						$user_id     = self::get_user_id( $action, $properties );
+						$track[ $i ] = array(
+							'userId'     => $user_id,
+							'event'      => $event_name,
+							'properties' => $properties,
+							'http_event' => $http_event
+						);
+
+						$i ++;
+
+						do_action( 'add_to_queue', $data );
+					}
+				}
+
+				if ( All_In_One_Analytics_Cookie::match_cookie( 'quiz_failed' ) ) {
+					$http_event = 'quiz_failed';
+					$event_name = 'Quiz Failed';
+					$cookies    = All_In_One_Analytics_Cookie::get_every_cookie( $http_event );
+					foreach ( $cookies as $cookie => $data ) {
+						$properties  = self::get_data_from_data_id( $data );
+						$properties  = All_In_One_Analytics_Encrypt::encrypt_decrypt( $properties, 'd' );
+						$properties  = json_decode( $properties, true );
+						$properties  = self::object_to_array( $properties );
+						$user_id     = self::get_user_id( $action, $properties );
+						$track[ $i ] = array(
+							'userId'     => $user_id,
+							'event'      => $event_name,
+							'properties' => $properties,
+							'http_event' => $http_event
+						);
+
+						$i ++;
+
+						do_action( 'add_to_queue', $data );
+					}
+
+				}
+
+
+				//this adds them to an async queue to remove db entry
+
 
 			}
 

@@ -344,6 +344,7 @@ class All_In_One_Analytics_Public {
 		All_In_One_Analytics::insert_data_into_db( $data_id, $properties );
 		All_In_One_Analytics_Cookie::set_cookie( 'enrolled_in_course', $data_id );
 	}
+
 	public function topic_completed( ...$args ) {
 		$action_hook = current_action();
 		$args        = func_get_args();
@@ -397,24 +398,6 @@ class All_In_One_Analytics_Public {
 		All_In_One_Analytics_Cookie::set_cookie( 'course_completed', $data_id );
 	}
 
-	//QUIZZES
-	public function quiz_completed( ...$args ) {
-		$action_hook = current_action();
-		$args        = func_get_args();
-		$args        = array(
-			'action_hook' => $action_hook,
-			'args'        => json_decode( json_encode( $args ), true )
-		);
-		$args        = All_In_One_Analytics::object_to_array( $args );
-		$user_id     = All_In_One_Analytics::get_user_id( $action_hook, $args );
-		$properties  = All_In_One_Analytics::get_event_properties( $action_hook, $user_id, $args );
-		$properties  = json_encode( $properties );
-		$properties  = All_In_One_Analytics_Encrypt::encrypt_decrypt( $properties, 'e' );
-		$data_id     = wp_rand( 1, 1000 ) . str_shuffle( $action_hook );
-		All_In_One_Analytics::insert_data_into_db( $data_id, $properties );
-		All_In_One_Analytics_Cookie::set_cookie( 'quiz_completed', $properties, $data_id );
-	}
-
 	public function assignment_uploaded( ...$args ) {
 		//do_action( 'learndash_assignment_uploaded', $assignment_post_id, $assignment_meta );
 		$action_hook = current_action();
@@ -431,6 +414,93 @@ class All_In_One_Analytics_Public {
 		$data_id     = wp_rand( 1, 1000 ) . str_shuffle( $action_hook );
 		All_In_One_Analytics::insert_data_into_db( $data_id, $properties );
 		All_In_One_Analytics_Cookie::set_cookie( 'assignment_uploaded', $properties, $data_id );
+	}
+
+	//QUIZZES
+	public function quiz_completed( ...$args ) {
+
+		//do_action("learndash_quiz_completed", $quizdata, $current_user); //Hook for completed quiz
+		//$quizdata = array( "quiz" => $quiz,
+		//  "course" => $course,
+		// "questions" => $questions,
+		// "score" => $score,
+		// "count" => $count,
+		// "pass" => $pass,
+		// "rank" => '-',
+		// "time" => time(),
+		// 'pro_quizid' => $quiz_id,
+		// 'points' => $points,
+		// 'total_points' => $total_points,
+		// 'percentage' => $result,
+		// 'timespent' => $timespent);
+		$args = func_get_args();
+
+		if ( empty( $args[1]->ID ) || empty( $args[0]["quiz"]->ID ) || empty( $args[0]["course"]->ID ) ) {
+			return;
+		}
+
+		unset( $args[0]["rank"] );
+		unset( $args[0]["questions"] );
+
+		$action_hook = current_action();
+		$args        = array(
+			'action_hook' => $action_hook,
+			'args'        => json_decode( json_encode( $args ), true )
+		);
+		$args        = All_In_One_Analytics::object_to_array( $args );
+		$user_id     = All_In_One_Analytics::get_user_id( $action_hook, $args );
+		$properties  = All_In_One_Analytics::get_event_properties( $action_hook, $user_id, $args );
+		$properties  = json_encode( $properties );
+		$properties  = All_In_One_Analytics_Encrypt::encrypt_decrypt( $properties, 'e' );
+		$data_id     = wp_rand( 1, 1000 ) . str_shuffle( $action_hook );
+		All_In_One_Analytics::insert_data_into_db( $data_id, $properties );
+		All_In_One_Analytics_Cookie::set_cookie( 'quiz_completed', $data_id );
+
+		if ( $args["args"][0]["pass"] === 1 ) {
+
+			All_In_One_Analytics_Cookie::set_cookie( 'quiz_passed', $data_id );
+
+		}
+
+		if ( $args["args"][0]["pass"] !== 1 ) {
+
+			All_In_One_Analytics_Cookie::set_cookie( 'quiz_failed', $data_id );
+
+		}
+	}
+
+	public function quiz_passed( ...$args ) {
+		$action_hook = current_action();
+		$args        = func_get_args();
+		$args        = array(
+			'action_hook' => $action_hook,
+			'args'        => json_decode( json_encode( $args ), true )
+		);
+		$args        = All_In_One_Analytics::object_to_array( $args );
+		$user_id     = All_In_One_Analytics::get_user_id( $action_hook, $args );
+		$properties  = All_In_One_Analytics::get_event_properties( $action_hook, $user_id, $args );
+		$properties  = json_encode( $properties );
+		$properties  = All_In_One_Analytics_Encrypt::encrypt_decrypt( $properties, 'e' );
+		$data_id     = wp_rand( 1, 1000 ) . str_shuffle( $action_hook );
+		All_In_One_Analytics::insert_data_into_db( $data_id, $properties );
+		All_In_One_Analytics_Cookie::set_cookie( 'quiz_completed', $properties, $data_id );
+	}
+
+	public function quiz_failed( ...$args ) {
+		$action_hook = current_action();
+		$args        = func_get_args();
+		$args        = array(
+			'action_hook' => $action_hook,
+			'args'        => json_decode( json_encode( $args ), true )
+		);
+		$args        = All_In_One_Analytics::object_to_array( $args );
+		$user_id     = All_In_One_Analytics::get_user_id( $action_hook, $args );
+		$properties  = All_In_One_Analytics::get_event_properties( $action_hook, $user_id, $args );
+		$properties  = json_encode( $properties );
+		$properties  = All_In_One_Analytics_Encrypt::encrypt_decrypt( $properties, 'e' );
+		$data_id     = wp_rand( 1, 1000 ) . str_shuffle( $action_hook );
+		All_In_One_Analytics::insert_data_into_db( $data_id, $properties );
+		All_In_One_Analytics_Cookie::set_cookie( 'quiz_completed', $properties, $data_id );
 	}
 
 
