@@ -218,6 +218,7 @@ class All_In_One_Analytics {
 		$plugin_public = new All_In_One_Analytics_Public( $this->get_plugin_name(), $this->get_version() );
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts', 8 );
 
+
 		//ASYNC ANALYTICS.JS
 		$plugin_async_js = new All_In_One_Analytics_Async_Analytics_Js (
 			$this->get_plugin_name(),
@@ -284,7 +285,7 @@ class All_In_One_Analytics {
 			$this->loader->add_action( 'woocommerce_remove_cart_item', $plugin_public, 'product_removed', 9, 2 );
 			$this->loader->add_action( 'woocommerce_cart_item_restored', $plugin_public, 'product_readded', 5, 2 );
 			//$this->loader->add_action( 'woocommerce_before_cart', $plugin_public, 'viewed_cart', 5 );
-			//$this->loader->add_action( 'woocommerce_before_checkout_form', $plugin_public, 'initiated_checkout', 5 );
+			//	$this->loader->add_action( 'woocommerce_after_checkout_form', $plugin_public, 'initiated_checkout', 5, WC()->cart->get_cart() );
 			$this->loader->add_action( 'woocommerce_order_status_pending', $plugin_public, 'order_pending', 5, 1 );
 			$this->loader->add_action( 'woocommerce_order_status_processing', $plugin_public, 'order_processing', 5, 1 );
 			$this->loader->add_action( 'woocommerce_order_status_completed', $plugin_public, 'order_completed', 9, 1 );
@@ -744,8 +745,9 @@ class All_In_One_Analytics {
 			"woocommerce_cart_item_restored"      => "Product Readded",
 			"woocommerce_before_cart"             => "Cart Viewed",
 			"is_cart"                             => "Cart Viewed",
-			"is_checkout"                         => "Checkout Viewed",
-			"woocommerce_before_checkout_form"    => "Checkout Started",
+			"is_checkout"                         => "Checkout Step Viewed",
+			//"woocommerce_before_checkout_form"    => "Checkout Step Viewed",
+			"woocommerce_checkout_process"        => "Checkout Started",
 			"woocommerce_order_status_completed"  => "Order Completed",
 			"woocommerce_payment_complete"        => "Order Paid",
 			"woocommerce_order_status_pending"    => "Order Pending",
@@ -2373,8 +2375,6 @@ class All_In_One_Analytics {
 
 		return $track; // Returns an array of track calls
 	}
-
-	//TODO turn the whole ecommerce functionality to be its own class
 
 	/**
 	 * Check if it's an ecommerce event hooks

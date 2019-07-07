@@ -27,7 +27,7 @@ class All_In_One_Analytics_Cookie {
 
 	public function enqueue_cookie_js() {
 
-		wp_enqueue_script( 'js.cookie.js', plugin_dir_url( __FILE__ ) . 'js/js.cookie.js', array(), '1.0', false );
+		wp_enqueue_script( 'js.cookie.js', plugin_dir_url( __FILE__ ) . 'js/js.cookie.js', array(), '2.2.0', false );
 
 	}
 

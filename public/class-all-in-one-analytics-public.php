@@ -54,6 +54,7 @@ class All_In_One_Analytics_Public {
 	 * @since    1.0.0
 	 */
 	public function enqueue_scripts() {
+		$settings = get_exopite_sof_option( 'all-in-one-analytics' );
 		/**
 		 * The All_In_One_Analytics_Loader will then create the relationship
 		 * between the defined hooks and the functions defined in this
@@ -63,12 +64,25 @@ class All_In_One_Analytics_Public {
 		$current_post        = get_post();
 		$trackable_user      = All_In_One_Analytics::check_trackable_user( $current_user );
 		$trackable_post_type = All_In_One_Analytics::check_trackable_post( $current_post );
+
 		if ( $trackable_user === true && $trackable_post_type === true ) {
 
 			wp_enqueue_script( 'analytics.js', plugin_dir_url( __FILE__ ) . 'js/analytics/analytics.min.js', array(
 				'jquery',
 				'async.analytics.js'
 			), $this->version, true );
+
+			if ( class_exists( 'woocommerce' ) && $settings["woocommerce_event_settings"]['track_woocommerce_fieldset']['track_woocommerce'] === 'yes' ) {
+
+				wp_enqueue_script( 'all-in-one-analytics-public.js', plugin_dir_url( __FILE__ ) . 'js/all-in-one-analytics-public.js', array(
+					'jquery',
+					'js.cookie.js'
+				), $this->version, true );
+
+			}
+			//	if ( class_exists( 'woocommerce' ) ) {
+			//	wc_enqueue_js($javascript);
+			//	}
 
 		}
 
