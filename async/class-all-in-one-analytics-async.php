@@ -41,6 +41,7 @@ class All_In_One_Analytics_Async {
 
 	}
 }
+
 class All_In_One_Analytics_Async_Request extends WP_Async_Request {
 
 	protected $action = 'all_in_one_analytics_async_request';
@@ -177,6 +178,7 @@ class All_In_One_Analytics_Async_Process {
 	}
 
 }
+
 class All_In_One_Analytics_Async_Process_Clean_DB extends WP_Background_Process {
 
 	protected $action = 'all_in_one_analytics_async_process_clean_db';
@@ -272,6 +274,7 @@ class All_In_One_Analytics_Async_Events {
 		//	$this->async_events->save()->dispatch();
 	}
 }
+
 class All_In_One_Analytics_Async_Events_Process extends WP_Background_Process {
 
 	protected $action = 'all_in_one_analytics_async_events_process';

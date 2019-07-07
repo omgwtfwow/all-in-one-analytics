@@ -285,7 +285,7 @@ class All_In_One_Analytics {
 			$this->loader->add_action( 'woocommerce_remove_cart_item', $plugin_public, 'product_removed', 9, 2 );
 			$this->loader->add_action( 'woocommerce_cart_item_restored', $plugin_public, 'product_readded', 5, 2 );
 			//$this->loader->add_action( 'woocommerce_before_cart', $plugin_public, 'viewed_cart', 5 );
-			//	$this->loader->add_action( 'woocommerce_after_checkout_form', $plugin_public, 'initiated_checkout', 5, WC()->cart->get_cart() );
+			$this->loader->add_action( 'woocommerce_checkout_process', $plugin_public, 'checkout_started', 5 );
 			$this->loader->add_action( 'woocommerce_order_status_pending', $plugin_public, 'order_pending', 5, 1 );
 			$this->loader->add_action( 'woocommerce_order_status_processing', $plugin_public, 'order_processing', 5, 1 );
 			$this->loader->add_action( 'woocommerce_order_status_completed', $plugin_public, 'order_completed', 9, 1 );
@@ -729,25 +729,26 @@ class All_In_One_Analytics {
 		$event_name_array = array(
 
 			//CORE
-			"wp_login"                            => "Logged in",
-			"wp_insert_comment"                   => "Commented",
-			"user_register"                       => "Signed up",
+			"wp_login"                          => "Logged in",
+			"wp_insert_comment"                 => "Commented",
+			"user_register"                     => "Signed up",
 
 			//FORMS
-			"ninja_forms_after_submission"        => "Completed Form",
-			"gform_after_submission"              => "Completed Form",
+			"ninja_forms_after_submission"      => "Completed Form",
+			"gform_after_submission"            => "Completed Form",
 
 			//WOOCOMMERCE
-			"woocommerce_before_single_product"   => "Product Viewed",
-			"is_product"                          => "Product Viewed",
-			"woocommerce_add_to_cart"             => "Product Added",
-			"woocommerce_remove_cart_item"        => "Product Removed",
-			"woocommerce_cart_item_restored"      => "Product Readded",
-			"woocommerce_before_cart"             => "Cart Viewed",
-			"is_cart"                             => "Cart Viewed",
-			"is_checkout"                         => "Checkout Step Viewed",
+			"woocommerce_before_single_product" => "Product Viewed",
+			"is_product"                        => "Product Viewed",
+			"product_clicked"                   => "Product Clicked", //DIY
+			"woocommerce_add_to_cart"           => "Product Added",
+			"woocommerce_remove_cart_item"      => "Product Removed",
+			"woocommerce_cart_item_restored"    => "Product Readded",
+			"woocommerce_before_cart"           => "Cart Viewed",
+			"is_cart"                           => "Cart Viewed",
+			"is_checkout"                       => "Checkout Step Viewed",
 			//"woocommerce_before_checkout_form"    => "Checkout Step Viewed",
-			"woocommerce_checkout_process"        => "Checkout Started",
+			"woocommerce_checkout_process"      => "Checkout Started",
 			"woocommerce_order_status_completed"  => "Order Completed",
 			"woocommerce_payment_complete"        => "Order Paid",
 			"woocommerce_order_status_pending"    => "Order Pending",
@@ -1644,7 +1645,6 @@ class All_In_One_Analytics {
 			// we filter those out. The event name is based on the post's type, and is uppercased.
 			if ( is_single() && ! is_attachment() ) {
 				$track[ $i ]          = array();
-				$properties           = array();
 				$track[ $i ]['event'] = sprintf( __( 'Viewed %s', 'all_in_one_analytics' ), ucfirst( get_post_type() ) );
 				if ( $settings["core_event_settings"]['track_posts_fieldset']['track_posts_custom_event_label'] !== "" ) {
 					$track[ $i ]['event'] = $settings["core_event_settings"]['track_posts_fieldset']['track_posts_custom_event_label'];
@@ -1865,9 +1865,25 @@ class All_In_One_Analytics {
 
 			if ( class_exists( 'woocommerce' ) ) {
 
-				// VIEWED PRODUCT
+				//TODO add to menu
+				// PRODUCT VIEWED
 				if ( is_product() ) {
 					$action                     = 'is_product';
+					$event_name                 = self::get_event_name( $action );
+					$properties                 = All_In_One_Analytics::get_product_details_from_product_id( get_the_ID() );
+					$track[ $i ]                = array(
+						'event'      => $event_name,
+						'properties' => $properties,
+					);
+					$track[ $i ]['skip-cookie'] = true;
+					$i ++;
+
+				}
+
+				//TODO add to menu
+				// PRODUCT CLICKED
+				if ( is_product() && All_In_One_Analytics_Cookie::match_cookie( 'product_clicked' ) ) {
+					$action                     = 'product_clicked';
 					$event_name                 = self::get_event_name( $action );
 					$properties                 = All_In_One_Analytics::get_product_details_from_product_id( get_the_ID() );
 					$track[ $i ]                = array(
@@ -1959,24 +1975,38 @@ class All_In_One_Analytics {
 
 				// VIEWED CART
 				if ( is_cart() ) {
-					$action      = 'is_cart';
-					$event_name  = self::get_event_name( $action );
-					$track[ $i ] = array(
+					$action                     = 'is_cart';
+					$event_name                 = self::get_event_name( $action );
+					$track[ $i ]                = array(
 						'event'      => $event_name,
 						'properties' => Array(),
 					);
+					$track[ $i ]['skip-cookie'] = true;
 					$i ++;
 				}
 
-				// INITIATED CHECKOUT
+				// VIEWED CHECKOUT STEP
 				if ( is_checkout() ) {
-					$action      = 'is_checkout';
+					$action                     = 'is_checkout';
+					$event_name                 = self::get_event_name( $action );
+					$track[ $i ]                = array(
+						'event'      => $event_name,
+						'properties' => Array(),
+					);
+					$track[ $i ]['skip-cookie'] = true;
+					$i ++;
+				}
+
+				if ( All_In_One_Analytics_Cookie::match_cookie( 'checkout_started' ) ) {
+					$action      = 'woocommerce_checkout_process';
+					$http_event  = 'checkout_started';
 					$event_name  = self::get_event_name( $action );
 					$track[ $i ] = array(
 						'event'      => $event_name,
 						'properties' => Array(),
 					);
 					$i ++;
+
 				}
 
 				// ORDER PENDING

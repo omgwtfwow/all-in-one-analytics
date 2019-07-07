@@ -78,6 +78,9 @@ class All_In_One_Analytics_Public {
 					'jquery',
 					'js.cookie.js'
 				), $this->version, true );
+				wp_localize_script( 'all-in-one-analytics-public.js', 'detailsAIO', array(
+					'post' => $current_post,
+				) );
 
 			}
 			//	if ( class_exists( 'woocommerce' ) ) {
@@ -220,6 +223,19 @@ class All_In_One_Analytics_Public {
 		$properties  = All_In_One_Analytics_Encrypt::encrypt_decrypt( $properties, 'e' );
 		All_In_One_Analytics_Cookie::set_cookie( 'coupon_added', $properties );
 	}
+
+	public function checkout_started( ...$args ) {
+		$action_hook = current_action();
+		$args        = func_get_args();
+		$args        = array( 'action_hook' => current_action(), 'args' => json_decode( json_encode( $args ), true ) );
+		$args        = All_In_One_Analytics::object_to_array( $args );
+		$user_id     = All_In_One_Analytics::get_user_id( $action_hook, $args );
+		$properties  = All_In_One_Analytics::get_event_properties( $action_hook, $user_id, $args );
+		$properties  = json_encode( $properties );
+		$properties  = All_In_One_Analytics_Encrypt::encrypt_decrypt( $properties, 'e' );
+		All_In_One_Analytics_Cookie::set_cookie( 'checkout_started', $properties );
+	}
+
 
 	public function order_pending( ...$args ) {
 		if ( ! current_user_can( 'manage_woocommerce' ) ) {
