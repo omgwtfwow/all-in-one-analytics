@@ -2,7 +2,6 @@
     'use strict';
     $(function () {
 
-        console.log('ok');
         var cookieNames = document.cookie.split(/=[^;]*(?:;\s*|$)/);
         for (var i = 0; i < cookieNames.length; i++) {
             if (/^aio_analytics_product_clicked/.test(cookieNames[i])) {
@@ -22,7 +21,6 @@
             if (true === $(this).hasClass('add_to_cart_button')) {
                 return;
             }
-            console.log('clickity');
             Cookies.set('aio_analytics_product_clicked', 'true');
 
         });
