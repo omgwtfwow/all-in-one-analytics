@@ -162,7 +162,11 @@ class All_In_One_Analytics_Public {
 	 *                 *
 	 */
 
-	public function product_added( ...$args ) {
+	public function product_added_normal( ...$args ) {
+		// don't track add to cart from AJAX here
+		if ( is_ajax() ) {
+			return;
+		}
 		//$args[0]=$cart_item_key,$args[1]=$product_id,$args[2]=$quantity, $args[3]=$variation_id,$args[4]=$variation, $args[5]=$cart_item_data
 		$action_hook = current_action();
 		$args        = func_get_args();
@@ -178,7 +182,27 @@ class All_In_One_Analytics_Public {
 		$properties  = All_In_One_Analytics_Encrypt::encrypt_decrypt( $properties, 'e' );
 		$data_id     = wp_rand( 1, 1000 ) . str_shuffle( $action_hook );
 		All_In_One_Analytics::insert_data_into_db( $data_id, $properties );
-		All_In_One_Analytics_Cookie::set_cookie( 'product_added', $data_id, $expiration = 0, $data_id );
+		All_In_One_Analytics_Cookie::set_cookie( 'product_added_normal', $data_id );
+
+	}
+
+	public function product_added_ajax( ...$args ) {
+		//$args[0]=$product_id
+		$action_hook = current_action();
+		$args        = func_get_args();
+		$args        = array(
+			'action_hook' => current_action(),
+			'args'        => json_decode( json_encode( $args ),
+				true )
+		);
+		$args        = All_In_One_Analytics::object_to_array( $args );
+		$user_id     = All_In_One_Analytics::get_user_id( $action_hook, $args );
+		$properties  = All_In_One_Analytics::get_event_properties( $action_hook, $user_id, $args );
+		$properties  = json_encode( $properties );
+		$properties  = All_In_One_Analytics_Encrypt::encrypt_decrypt( $properties, 'e' );
+		$data_id     = wp_rand( 1, 1000 ) . str_shuffle( $action_hook );
+		All_In_One_Analytics::insert_data_into_db( $data_id, $properties );
+		All_In_One_Analytics_Cookie::set_cookie( 'product_added_ajax', $data_id );
 
 	}
 
@@ -373,6 +397,25 @@ class All_In_One_Analytics_Public {
 		$data_id     = wp_rand( 1, 1000 ) . str_shuffle( $action_hook );
 		All_In_One_Analytics::insert_data_into_db( $data_id, $properties );
 		All_In_One_Analytics_Cookie::set_cookie( 'enrolled_in_course', $data_id );
+	}
+
+	public function enrolled_in_course_via_group( ...$args ) {
+		//args	$group_id, $group_leaders, $group_users, $group_courses
+		$args        = func_get_args();
+		$action_hook = current_action();
+		$args        = func_get_args();
+		$args        = array(
+			'action_hook' => current_action(),
+			'args'        => json_decode( json_encode( $args ), true )
+		);
+		$args        = All_In_One_Analytics::object_to_array( $args );
+		$user_id     = All_In_One_Analytics::get_user_id( $action_hook, $args );
+		$properties  = All_In_One_Analytics::get_event_properties( $action_hook, $user_id, $args );
+		$properties  = json_encode( $properties );
+		$properties  = All_In_One_Analytics_Encrypt::encrypt_decrypt( $properties, 'e' );
+		$data_id     = wp_rand( 1, 1000 ) . str_shuffle( $action_hook );
+		All_In_One_Analytics::insert_data_into_db( $data_id, $properties );
+		All_In_One_Analytics_Cookie::set_cookie( 'enrolled_in_course_via_group', $data_id );
 	}
 
 	public function topic_completed( ...$args ) {

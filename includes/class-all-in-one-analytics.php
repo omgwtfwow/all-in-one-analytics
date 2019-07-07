@@ -281,7 +281,8 @@ class All_In_One_Analytics {
 		//WOOCOMMERCE
 		if ( $settings["woocommerce_event_settings"]['track_woocommerce_fieldset']['track_woocommerce'] === 'yes' ) {
 			//$this->loader->add_action( 'woocommerce_before_single_product', $plugin_public, 'viewed_product', 9 );
-			$this->loader->add_action( 'woocommerce_add_to_cart', $plugin_public, 'product_added', 9, 6 );
+			$this->loader->add_action( 'woocommerce_add_to_cart', $plugin_public, 'product_added_normal', 9, 6 );
+			$this->loader->add_action( 'woocommerce_ajax_added_to_cart', $plugin_public, 'product_added_ajax', 9, 1 );
 			$this->loader->add_action( 'woocommerce_remove_cart_item', $plugin_public, 'product_removed', 9, 2 );
 			$this->loader->add_action( 'woocommerce_cart_item_restored', $plugin_public, 'product_readded', 5, 2 );
 			//$this->loader->add_action( 'woocommerce_before_cart', $plugin_public, 'viewed_cart', 5 );
@@ -298,6 +299,7 @@ class All_In_One_Analytics {
 		if ( $settings["learndash_event_settings"]["track_learndash_fieldset"]["track_learndash"] == "yes" ) {
 			if ( $settings["learndash_event_settings"]["track_learndash_fieldset"]["track_enrollments_fieldset"]["track_enrollments"] ) {
 				$this->loader->add_action( 'learndash_update_course_access', $plugin_public, 'enrolled_in_course', 1, 4 );
+				$this->loader->add_action( 'ld_group_postdata_updated', $plugin_public, 'enrolled_in_course_via_group', 1, 4 );
 			}
 			if ( $settings["learndash_event_settings"]["track_learndash_fieldset"]["track_topics_fieldset"]["track_topics"] == "yes" ) {
 				$this->loader->add_action( 'learndash_topic_completed', $plugin_public, 'topic_completed', 9, 1 );
@@ -730,25 +732,26 @@ class All_In_One_Analytics {
 
 			//CORE
 			"wp_login"                          => "Logged in",
-			"wp_insert_comment"                 => "Commented",
-			"user_register"                     => "Signed up",
+			"wp_insert_comment"                   => "Commented",
+			"user_register"                       => "Signed up",
 
 			//FORMS
-			"ninja_forms_after_submission"      => "Completed Form",
-			"gform_after_submission"            => "Completed Form",
+			"ninja_forms_after_submission"        => "Completed Form",
+			"gform_after_submission"              => "Completed Form",
 
 			//WOOCOMMERCE
-			"woocommerce_before_single_product" => "Product Viewed",
-			"is_product"                        => "Product Viewed",
-			"product_clicked"                   => "Product Clicked", //DIY
-			"woocommerce_add_to_cart"           => "Product Added",
-			"woocommerce_remove_cart_item"      => "Product Removed",
-			"woocommerce_cart_item_restored"    => "Product Readded",
-			"woocommerce_before_cart"           => "Cart Viewed",
-			"is_cart"                           => "Cart Viewed",
-			"is_checkout"                       => "Checkout Step Viewed",
+			"woocommerce_before_single_product"   => "Product Viewed",
+			"is_product"                          => "Product Viewed",
+			"product_clicked"                     => "Product Clicked", //DIY
+			"woocommerce_add_to_cart"             => "Product Added",
+			"woocommerce_ajax_added_to_cart"      => "Product Added",
+			"woocommerce_remove_cart_item"        => "Product Removed",
+			"woocommerce_cart_item_restored"      => "Product Readded",
+			"woocommerce_before_cart"             => "Cart Viewed",
+			"is_cart"                             => "Cart Viewed",
+			"is_checkout"                         => "Checkout Step Viewed",
 			//"woocommerce_before_checkout_form"    => "Checkout Step Viewed",
-			"woocommerce_checkout_process"      => "Checkout Started",
+			"woocommerce_checkout_process"        => "Checkout Started",
 			"woocommerce_order_status_completed"  => "Order Completed",
 			"woocommerce_payment_complete"        => "Order Paid",
 			"woocommerce_order_status_pending"    => "Order Pending",
@@ -761,6 +764,7 @@ class All_In_One_Analytics {
 
 			//LEARNDASH
 			"learndash_update_course_access"      => "Enrolled",
+			"ld_group_postdata_updated"           => "Enrolled",
 			"learndash_topic_completed"           => "Topic Completed",
 			"learndash_lesson_completed"          => "Lesson Completed",
 			"learndash_course_completed"          => "Course Completed",
@@ -1001,7 +1005,7 @@ class All_In_One_Analytics {
 			}
 		}
 
-		//WOOCOMMERCE
+		//WOOCOMMERCE ORDER
 		if ( self::check_ecommerce_order_hook( $action_hook ) ) {
 			//data[0] is orderid
 			if ( isset ( $data["order_id"] ) ) {
@@ -1023,6 +1027,17 @@ class All_In_One_Analytics {
 			return null;
 
 		}
+
+		if ( $action_hook == 'woocommerce_ajax_added_to_cart' ) {
+
+			$user_id = get_current_user_id();
+			if ( $user_id == 0 ) {
+				unset( $user_id );
+			}
+
+		}
+
+
 
 		/*
 		 This check for field email and user id field types/values
@@ -1414,6 +1429,18 @@ class All_In_One_Analytics {
 				return array_filter( $properties );
 			}
 
+			if ( $action_hook === 'woocommerce_ajax_added_to_cart' ) {
+				//$args0=$product_id
+				$product_id        = $args['args'][0];
+				$properties        = self::get_product_details_from_product_id( $product_id );
+				$properties['url'] = get_permalink( $product_id );
+				if ( ! isset( $properties['image_url'] ) ) {
+					$properties['image_url'] = wp_get_attachment_image_src( get_post_thumbnail_id( $product_id ), 'single-post-thumbnail' );
+				}
+
+				return array_filter( $properties );
+			}
+
 			if ( $action_hook === 'woocommerce_cart_item_restored' ) {
 				$removed_cart_item_key      = $args["args"][0];
 				$properties['product_id']   = $args['args'][1]["cart_contents"][ $removed_cart_item_key ]["product_id"];
@@ -1475,6 +1502,39 @@ class All_In_One_Analytics {
 			$properties["course_url"]    = $course_post->guid;
 
 			return array_filter( $properties );
+		}
+
+		if ( $action_hook === "ld_group_postdata_updated" && ! current_user_can( 'edit_others_pages' ) ) {
+			//args	$group_id, $group_leaders, $group_users, $group_courses
+
+			foreach ( $args["args"][3] as $course_id ) {
+				foreach ( $args["args"][2] as $user_id ) {
+					$user = get_user_by( 'id', $user_id );
+					if ( empty( $user->ID ) ) {
+						continue;
+					}
+
+					$course = get_post( $course_id );
+					if ( empty( $course->ID ) ) {
+						continue;
+					}
+
+					$data = array(
+						'user'   => $user->data,
+						'course' => $course,
+					);
+
+					$course_post                 = get_post( $args["args"][1] );
+					$properties["course_id"]     = $args["args"][1];
+					$properties["course_title"]  = $course_post->post_title;
+					$properties["course_name"]   = $course_post->post_name;
+					$properties["course_author"] = $course_post->post_author;
+					$properties["course_date"]   = $course_post->post_date;
+					$properties["course_url"]    = $course_post->guid;
+
+					return array_filter( $properties );
+				}
+			}
 		}
 
 		if ( $action_hook === "learndash_topic_completed" ) {
@@ -1554,8 +1614,6 @@ class All_In_One_Analytics {
 
 		//TODO QUIZZES
 		//TODO ASSIGNMENTS
-
-
 	}
 
 	/**
@@ -1896,10 +1954,37 @@ class All_In_One_Analytics {
 				}
 
 				// PRODUCT ADDED
-				if ( All_In_One_Analytics_Cookie::match_cookie( 'product_added' ) ) {
+				if ( All_In_One_Analytics_Cookie::match_cookie( 'product_added_normal' ) ) {
 
 					$action     = 'woocommerce_add_to_cart';
-					$http_event = 'product_added';
+					$http_event = 'product_added_normal';
+					$event_name = self::get_event_name( $action );
+					$cookies    = All_In_One_Analytics_Cookie::get_every_cookie( $http_event );
+					foreach ( $cookies as $cookie => $data ) {
+						$properties = self::get_data_from_data_id( $data );
+						$properties = All_In_One_Analytics_Encrypt::encrypt_decrypt( $properties, 'd' );
+						$properties = json_decode( $properties, true );
+						$properties = self::object_to_array( $properties );
+						$user_id    = self::get_user_id( $action, $properties );
+
+						$track[ $i ] = array(
+							'userId'     => $user_id,
+							'event'      => $event_name,
+							'properties' => $properties,
+							'http_event' => $http_event
+						);
+
+						$i ++;
+
+						//this adds item to an async queue to remove db entry
+						do_action( 'add_to_queue', $data );
+					}
+				}
+
+				if ( All_In_One_Analytics_Cookie::match_cookie( 'product_added_ajax' ) ) {
+
+					$action     = 'woocommerce_ajax_added_to_cart';
+					$http_event = 'product_added_ajax';
 					$event_name = self::get_event_name( $action );
 					$cookies    = All_In_One_Analytics_Cookie::get_every_cookie( $http_event );
 					foreach ( $cookies as $cookie => $data ) {
@@ -2207,6 +2292,33 @@ class All_In_One_Analytics {
 
 			}
 
+			if ( All_In_One_Analytics_Cookie::match_cookie( 'enrolled_in_course_via_group' ) ) {
+				$action     = 'ld_group_postdata_updated';
+				$http_event = 'enrolled_in_course_via_group';
+				$event_name = self::get_event_name( $action );
+				$cookies    = All_In_One_Analytics_Cookie::get_every_cookie( $http_event );
+				foreach ( $cookies as $cookie => $data ) {
+					$properties = self::get_data_from_data_id( $data );
+					$properties = All_In_One_Analytics_Encrypt::encrypt_decrypt( $properties, 'd' );
+					$properties = json_decode( $properties, true );
+					$properties = self::object_to_array( $properties );
+					$user_id    = self::get_user_id( $action, $properties );
+
+					$track[ $i ] = array(
+						'userId'     => $user_id,
+						'event'      => $event_name,
+						'properties' => $properties,
+						'http_event' => $http_event
+					);
+
+					$i ++;
+
+					do_action( 'add_to_queue', $data ); //this adds them to an async queue to remove db entry
+
+				}
+
+			}
+
 			// TOPICS
 			if ( All_In_One_Analytics_Cookie::match_cookie( 'topic_completed' ) ) {
 				$action     = 'learndash_topic_completed';
@@ -2418,6 +2530,7 @@ class All_In_One_Analytics {
 		$ecommerce_hooks = Array(
 			'woocommerce_before_single_product',
 			'woocommerce_add_to_cart',
+			'woocommerce_ajax_added_to_cart',
 			'woocommerce_remove_cart_item',
 			'woocommerce_cart_item_restored',
 			'woocommerce_before_cart',
@@ -2427,7 +2540,10 @@ class All_In_One_Analytics {
 			'woocommerce_order_status_completed',
 			'woocommerce_payment_complete',
 			'woocommerce_order_status_cancelled',
-			'woocommerce_applied_coupon'
+			'woocommerce_applied_coupon',
+			'is_checkout',
+			'is_cart',
+			'woocommerce_checkout_process'
 		);
 
 		return in_array( $action_hook, $ecommerce_hooks );
@@ -2694,10 +2810,19 @@ class All_In_One_Analytics {
 		$product   = wc_get_product( $product_id );
 		$image_url = wp_get_attachment_image_src( get_post_thumbnail_id( $product_id ), 'single-post-thumbnail' );
 		$product->get_meta_data();
-		$properties                  = array();
-		$properties['product_id']    = $product_id;
-		$properties['sku']           = $product->get_sku();
-		$properties['category']      = $product->get_category_ids(); //array
+		$properties               = array();
+		$properties['product_id'] = $product_id;
+		$properties['sku']        = $product->get_sku();
+		$product_categories       = $product->get_category_ids();
+		if ( is_array( $product_categories ) ) {
+			foreach ( $product_categories as $key => $value ) {
+				if ( $key == 0 ) {
+					$properties['product_category'] = $value;
+				} else {
+					$properties[ 'product_category_' . ( $key + 1 ) ] = $value;
+				}
+			}
+		}
 		$properties['name']          = $product->get_name();
 		$properties['price']         = $product->get_price();
 		$properties['regular_price'] = $product->get_regular_price();
@@ -2730,21 +2855,21 @@ class All_In_One_Analytics {
 		$properties['width']             = $product->get_width();
 		$properties['height']            = $product->get_height();
 		$properties['dimensions']        = $product->get_dimensions();
-		$properties['upsell_ids']        = $product->get_upsell_ids();
-		$properties['cross_sell_ids']    = $product->get_cross_sell_ids();
+		//	$properties['upsell_ids']        = json_encode($product->get_upsell_ids());
+		//	$properties['cross_sell_ids']    = json_encode($product->get_cross_sell_ids());
 		$properties['parent_id']         = $product->get_parent_id();
 		$properties['variations']        = $product->get_attributes();
 		$properties['default_variation'] = $product->get_default_attributes();
 		//$properties['categories']         = $product->get_categories(); HTML
-		$properties['category_ids']    = $product->get_category_ids();
-		$properties['tag_ids']         = $product->get_tag_ids();
+		//	$properties['category_ids']    = json_encode($product->get_category_ids()); //Array
+		//	$properties['tag_ids']         = json_encode($product->get_tag_ids());
 		$properties['downloads']       = $product->get_downloads();
 		$properties['download_expiry'] = $product->get_download_expiry();
 		$properties['downloadable']    = $product->get_downloadable();
 		$properties['download_limit']  = $product->get_download_limit();
 		$properties['image_id']        = $product->get_image_id();
 		//$properties['image']              = $product->get_image(); HTML
-		$properties['gallery_image_ids'] = $product->get_gallery_image_ids();
+		//	$properties['gallery_image_ids'] = json_encode($product->get_gallery_image_ids());
 		$properties['reviews_allowed']   = $product->get_reviews_allowed();
 		$properties['rating_count']      = $product->get_rating_counts();
 		$properties['average_rating']    = $product->get_average_rating();
