@@ -738,18 +738,18 @@ class All_In_One_Analytics {
 
 			//CORE
 			"wp_login"                          => "Logged in",
-			"wp_insert_comment"                   => "Commented",
-			"user_register"                       => "Signed up",
+			"wp_insert_comment"                 => "Commented",
+			"user_register"                     => "Signed up",
 
 			//FORMS
-			"ninja_forms_after_submission"        => "Completed Form",
-			"gform_after_submission"              => "Completed Form",
+			"ninja_forms_after_submission"      => "Completed Form",
+			"gform_after_submission"            => "Completed Form",
 
 			//WOOCOMMERCE
-			"woocommerce_before_single_product"   => "Product Viewed",
-			"is_product"                          => "Product Viewed",
-			"product_clicked"                     => "Product Clicked", //DIY
-			"woocommerce_add_to_cart"             => "Product Added",
+			"woocommerce_before_single_product" => "Product Viewed",
+			"is_product"                        => "Product Viewed",
+			"product_clicked"                   => "Product Clicked", //DIY
+			"woocommerce_add_to_cart"           => "Product Added",
 			"woocommerce_ajax_added_to_cart"      => "Product Added",
 			"woocommerce_remove_cart_item"        => "Product Removed",
 			"woocommerce_cart_item_restored"      => "Product Readded",
@@ -1109,7 +1109,9 @@ class All_In_One_Analytics {
 							return $user_id;
 						}
 					}
+
 					if ( is_email( $value ) ) {
+
 						if ( email_exists( $value ) ) {
 							$user_id = email_exists( $value );
 
@@ -1324,67 +1326,67 @@ class All_In_One_Analytics {
 
 		}
 
+
 		//TODO
+		//TODO//TODO//TODO
+		//FIXME
 		if ( $action_hook === 'gform_after_submission' ) {
 
-			// arg1=$entry $arg2= $form
-
-			if ( isset( $action_current ) ) {
-				if ( $args["action_current"] == '‌wp_ajax_wp_all_in_one_analytics_async_events_process' ||
-				     $args["action_current"] == '‌wp_ajax_nopriv_wp_all_in_one_analytics_async_events_process' ) {
-					$entry_id = $args["args"][0]["id"];
-					$form_id  = $args["args"][0]["form_id"];
-				}
-			} else {
-				$entry_id = $args[0]['id'];
-				$form_id  = $args[0];
-				$form_id  = $form_id['form_id'];
+			// arg0=$entry arg1= $form
+			if ( isset( $args["args"][0] ) ) {
+				$entry = $args["args"][0];
+				$form  = $args["args"][1];
 			}
-
+			if ( isset( $args[0] ) ) {
+				$entry = $args[0];
+				$form  = $args[1];
+			}
+			if ( isset( $entry["id"] ) && isset( $entry["form_id"] ) ) {
+				$entry_id = $entry["id"];
+				$form_id  = $entry["form_id"];
+			}
 			if ( isset( $form_id ) && isset( $entry_id ) ) {
 
-				$form                 = GFAPI::get_form( $form_id );
-				$entry                = GFAPI::get_entry( $entry_id );
-			$properties["form_id"]    = $form_id;
-			$properties['source_url'] = $entry['source_url'];
-			$fields                   = $form['fields'];
-			foreach ( $fields as $field ) {
-				//	$field_type = $field['type'];
-				$field_id   = $field['id'];
-				$inputs     = rgar( $entry, $field_id );
-				if ( isset( $inputs ) ) {
-					foreach ( $inputs as $input ) {
-						//	$value = rgar( $entry, $field_id );
-						if ( $input['id'] === '2.3' ) { //these ids arbritary set by GF https://docs.gravityforms.com/name/
-							$input['label'] = 'First Name';
-						}
-						if ( $input['id'] === '2.4' ) {
-							$input['label'] = 'Middle Name';
-						}
-						if ( $input['id'] === '2.6' ) {
-							$input['label'] = 'Last Name';
-						}
-						if ( $input['id'] === '2.2' ) {
-							$input['label'] = 'Title';
-						}
-						if ( $input['type'] === 'email' ) {
-							$input['label'] = 'email';
+				$properties["form_id"]    = $form_id;
+				$properties['source_url'] = $args["args"][0]["source_url"];
+				$fields                   = $form['fields'];
+				foreach ( $fields as $field ) {
+					//	$field_type = $field['type'];
+					$field_id = $field->id;
+					$inputs   = rgar( $entry, $field_id );
+					if ( isset( $inputs ) ) {
+						foreach ( $inputs as $input ) {
+							//	$value = rgar( $entry, $field_id );
+							if ( $input['id'] === '2.3' ) { //these ids arbritary set by GF https://docs.gravityforms.com/name/
+								$input['label'] = 'First Name';
+							}
+							if ( $input['id'] === '2.4' ) {
+								$input['label'] = 'Middle Name';
+							}
+							if ( $input['id'] === '2.6' ) {
+								$input['label'] = 'Last Name';
+							}
+							if ( $input['id'] === '2.2' ) {
+								$input['label'] = 'Title';
+							}
+							if ( $input['type'] === 'email' ) {
+								$input['label'] = 'email';
+							}
 						}
 					}
+
+					if ( $field['type'] === 'email' ) {
+						$field['label'] = 'email';
+					}
+
+					if ( $field['type'] === 'phone' ) {
+						$field['label'] = 'phone';
+					}
+
+					$properties[ $field['label'] ] = rgar( $entry, $field['id'] );
 				}
 
-				if ( $field['type'] === 'email' ) {
-					$field['label'] = 'email';
-				}
-
-				if ( $field['type'] === 'phone' ) {
-					$field['label'] = 'phone';
-				}
-
-				$properties[ $field['label'] ] = rgar( $entry, $field['id'] );
-			}
-
-			return array_filter( $properties );
+				return array_filter( $properties );
 			}
 		}
 
