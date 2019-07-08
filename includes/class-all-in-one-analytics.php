@@ -280,7 +280,7 @@ class All_In_One_Analytics {
 
 		//GRAVITY FORMS
 		if ( $settings["form_event_settings"]['track_gravity_forms_fieldset']['track_gravity_forms'] === 'yes' ) {
-			$this->loader->add_action( 'gform_after_submission', $plugin_track, 'completed_form_gf', 9, 2 );
+			$this->loader->add_action( 'gform_after_submission', $plugin_public, 'completed_form_gf', 9, 2 );
 		}
 
 
@@ -750,14 +750,14 @@ class All_In_One_Analytics {
 			"is_product"                        => "Product Viewed",
 			"product_clicked"                   => "Product Clicked", //DIY
 			"woocommerce_add_to_cart"           => "Product Added",
-			"woocommerce_ajax_added_to_cart"      => "Product Added",
-			"woocommerce_remove_cart_item"        => "Product Removed",
-			"woocommerce_cart_item_restored"      => "Product Readded",
-			"woocommerce_before_cart"             => "Cart Viewed",
-			"is_cart"                             => "Cart Viewed",
-			"is_checkout"                         => "Checkout Step Viewed",
+			"woocommerce_ajax_added_to_cart"    => "Product Added",
+			"woocommerce_remove_cart_item"      => "Product Removed",
+			"woocommerce_cart_item_restored"    => "Product Readded",
+			"woocommerce_before_cart"           => "Cart Viewed",
+			"is_cart"                           => "Cart Viewed",
+			"is_checkout"                       => "Checkout Step Viewed",
 			//"woocommerce_before_checkout_form"    => "Checkout Step Viewed",
-			"woocommerce_checkout_process"        => "Checkout Started",
+			"woocommerce_checkout_process"      => "Checkout Started",
 			"woocommerce_order_status_completed"  => "Order Completed",
 			"woocommerce_payment_complete"        => "Order Paid",
 			"woocommerce_order_status_pending"    => "Order Pending",
@@ -1345,48 +1345,23 @@ class All_In_One_Analytics {
 				$entry_id = $entry["id"];
 				$form_id  = $entry["form_id"];
 			}
+
 			if ( isset( $form_id ) && isset( $entry_id ) ) {
 
-				$properties["form_id"]    = $form_id;
-				$properties['source_url'] = $args["args"][0]["source_url"];
-				$fields                   = $form['fields'];
+				$form   = GFAPI::get_form( $form_id );
+				$entry  = GFAPI::get_entry( $entry_id );
+				$fields = $form["fields"];
 				foreach ( $fields as $field ) {
-					//	$field_type = $field['type'];
-					$field_id = $field->id;
-					$inputs   = rgar( $entry, $field_id );
-					if ( isset( $inputs ) ) {
-						foreach ( $inputs as $input ) {
-							//	$value = rgar( $entry, $field_id );
-							if ( $input['id'] === '2.3' ) { //these ids arbritary set by GF https://docs.gravityforms.com/name/
-								$input['label'] = 'First Name';
-							}
-							if ( $input['id'] === '2.4' ) {
-								$input['label'] = 'Middle Name';
-							}
-							if ( $input['id'] === '2.6' ) {
-								$input['label'] = 'Last Name';
-							}
-							if ( $input['id'] === '2.2' ) {
-								$input['label'] = 'Title';
-							}
-							if ( $input['type'] === 'email' ) {
-								$input['label'] = 'email';
-							}
-						}
-					}
+					//$field_id = $field->id;
 
-					if ( $field['type'] === 'email' ) {
-						$field['label'] = 'email';
-					}
+					//	$inputs = rgar( $entry, $field->id );
 
-					if ( $field['type'] === 'phone' ) {
-						$field['label'] = 'phone';
-					}
+					$properties[ $field->label ] = rgar( $entry, $field->id );
 
-					$properties[ $field['label'] ] = rgar( $entry, $field['id'] );
 				}
 
 				return array_filter( $properties );
+
 			}
 		}
 
@@ -1881,12 +1856,12 @@ class All_In_One_Analytics {
 				}
 			}
 		}
-		//TODO add gravity forms
 
+		// GRAVITY FORMS
 		if ( $settings["form_event_settings"]['track_gravity_forms_fieldset']['track_gravity_forms'] == "yes" ) {
 			if ( All_In_One_Analytics_Cookie::match_cookie( 'completed_form_gf' ) ) {
-				$action     = 'ninja_forms_after_submission';
-				$http_event = 'completed_form_nf';
+				$action     = 'gform_after_submission';
+				$http_event = 'completed_form_gf';
 				$event_name = self::get_event_name( $action );
 				$cookies    = All_In_One_Analytics_Cookie::get_every_cookie( $http_event );
 				foreach ( $cookies as $cookie => $data ) {
@@ -1895,7 +1870,6 @@ class All_In_One_Analytics {
 					$properties = json_decode( $properties, true );
 					$properties = self::object_to_array( $properties );
 					$user_id    = self::get_user_id( $action, $properties );
-
 					$track[ $i ] = array(
 						'userId'     => $user_id,
 						'event'      => $event_name,
