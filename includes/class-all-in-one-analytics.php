@@ -1326,10 +1326,6 @@ class All_In_One_Analytics {
 
 		}
 
-
-		//TODO
-		//TODO//TODO//TODO
-		//FIXME
 		if ( $action_hook === 'gform_after_submission' ) {
 
 			// arg0=$entry arg1= $form
@@ -1348,9 +1344,14 @@ class All_In_One_Analytics {
 
 			if ( isset( $form_id ) && isset( $entry_id ) ) {
 
-				$form   = GFAPI::get_form( $form_id );
-				$entry  = GFAPI::get_entry( $entry_id );
-				$fields = $form["fields"];
+				$form                           = GFAPI::get_form( $form_id );
+				$entry                          = GFAPI::get_entry( $entry_id );
+				$fields                         = $form["fields"];
+				$properties['form_title']       = $form["title"];
+				$properties['form_id']          = $form_id;
+				$properties['entry_id']         = $entry_id;
+				$properties['entry_source_url'] = $entry["source_url"];
+
 				foreach ( $fields as $field ) {
 					//$field_id = $field->id;
 
