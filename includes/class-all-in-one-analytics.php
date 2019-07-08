@@ -368,13 +368,13 @@ class All_In_One_Analytics {
 
 			$this->loader->add_action( 'woocommerce_add_to_cart', $plugin_async_events, 'all_in_one_analytics_async_events_add', 9, 6 );
 			$this->loader->add_action( 'woocommerce_remove_cart_item', $plugin_async_events, 'all_in_one_analytics_async_events_add', 9, 2 );
-			$this->loader->add_action( 'woocommerce_cart_item_restored', $plugin_async_events, 'all_in_one_analytics_async_events_add', 5, 2 );
-			$this->loader->add_action( 'woocommerce_order_status_pending', $plugin_async_events, 'all_in_one_analytics_async_events_add', 5, 1 );
-			$this->loader->add_action( 'woocommerce_order_status_processing', $plugin_async_events, 'all_in_one_analytics_async_events_add', 5, 1 );
+			$this->loader->add_action( 'woocommerce_cart_item_restored', $plugin_async_events, 'all_in_one_analytics_async_events_add', 9, 2 );
+			$this->loader->add_action( 'woocommerce_order_status_pending', $plugin_async_events, 'all_in_one_analytics_async_events_add', 9, 1 );
+			$this->loader->add_action( 'woocommerce_order_status_processing', $plugin_async_events, 'all_in_one_analytics_async_events_add', 9, 1 );
 			$this->loader->add_action( 'woocommerce_order_status_completed', $plugin_async_events, 'all_in_one_analytics_async_events_add', 9, 1 );
 			$this->loader->add_action( 'woocommerce_payment_complete', $plugin_async_events, 'all_in_one_analytics_async_events_add', 9, 1 );
 			$this->loader->add_action( 'woocommerce_order_status_cancelled', $plugin_async_events, 'all_in_one_analytics_async_events_add', 9, 1 );
-			//	$this->loader->add_action( 'woocommerce_applied_coupon', $plugin_async, 'all_in_one_analytics_async_request', 9, 1 );
+			$this->loader->add_action( 'woocommerce_applied_coupon', $plugin_async_events, 'all_in_one_analytics_async_events_add', 9, 1 );
 
 		}
 
@@ -737,27 +737,27 @@ class All_In_One_Analytics {
 		$event_name_array = array(
 
 			//CORE
-			"wp_login"                          => "Logged in",
-			"wp_insert_comment"                 => "Commented",
-			"user_register"                     => "Signed up",
+			"wp_login"                            => "Logged in",
+			"wp_insert_comment"                   => "Commented",
+			"user_register"                       => "Signed up",
 
 			//FORMS
-			"ninja_forms_after_submission"      => "Completed Form",
-			"gform_after_submission"            => "Completed Form",
+			"ninja_forms_after_submission"        => "Completed Form",
+			"gform_after_submission"              => "Completed Form",
 
 			//WOOCOMMERCE
-			"woocommerce_before_single_product" => "Product Viewed",
-			"is_product"                        => "Product Viewed",
-			"product_clicked"                   => "Product Clicked", //DIY
-			"woocommerce_add_to_cart"           => "Product Added",
-			"woocommerce_ajax_added_to_cart"    => "Product Added",
-			"woocommerce_remove_cart_item"      => "Product Removed",
-			"woocommerce_cart_item_restored"    => "Product Readded",
-			"woocommerce_before_cart"           => "Cart Viewed",
-			"is_cart"                           => "Cart Viewed",
-			"is_checkout"                       => "Checkout Step Viewed",
+			"woocommerce_before_single_product"   => "Product Viewed",
+			"is_product"                          => "Product Viewed",
+			"product_clicked"                     => "Product Clicked", //DIY
+			"woocommerce_add_to_cart"             => "Product Added",
+			"woocommerce_ajax_added_to_cart"      => "Product Added",
+			"woocommerce_remove_cart_item"        => "Product Removed",
+			"woocommerce_cart_item_restored"      => "Product Readded",
+			"woocommerce_before_cart"             => "Cart Viewed",
+			"is_cart"                             => "Cart Viewed",
+			"is_checkout"                         => "Checkout Step Viewed",
 			//"woocommerce_before_checkout_form"    => "Checkout Step Viewed",
-			"woocommerce_checkout_process"      => "Checkout Started",
+			"woocommerce_checkout_process"        => "Checkout Started",
 			"woocommerce_order_status_completed"  => "Order Completed",
 			"woocommerce_payment_complete"        => "Order Paid",
 			"woocommerce_order_status_pending"    => "Order Pending",
@@ -1311,10 +1311,20 @@ class All_In_One_Analytics {
 				$properties['form_title'] = $args[0]["settings"]["title"];
 			}
 
+			if ( isset( $args["args"][0]["settings"]["title"] ) ) {
+				$properties['form_title'] = $args["args"][0]["settings"]["title"];
+			}
+
 			//args[0]=$entry args[1]= $form and NF args[0]=form_data object
 			//extract values from each active field type and include key => value pairs in the track call
 			if ( isset( $args["args"][0]["fields_by_key"] ) ) {
 				foreach ( $args["args"][0]["fields_by_key"] as $key => $value ) {
+					$properties[ $key ] = $value["value"];
+				}
+			}
+
+			if ( isset( $args[0]["fields_by_key"] ) ) {
+				foreach ( $args[0]["fields_by_key"] as $key => $value ) {
 					$properties[ $key ] = $value["value"];
 				}
 			}
@@ -1866,11 +1876,11 @@ class All_In_One_Analytics {
 				$event_name = self::get_event_name( $action );
 				$cookies    = All_In_One_Analytics_Cookie::get_every_cookie( $http_event );
 				foreach ( $cookies as $cookie => $data ) {
-					$properties = self::get_data_from_data_id( $data );
-					$properties = All_In_One_Analytics_Encrypt::encrypt_decrypt( $properties, 'd' );
-					$properties = json_decode( $properties, true );
-					$properties = self::object_to_array( $properties );
-					$user_id    = self::get_user_id( $action, $properties );
+					$properties  = self::get_data_from_data_id( $data );
+					$properties  = All_In_One_Analytics_Encrypt::encrypt_decrypt( $properties, 'd' );
+					$properties  = json_decode( $properties, true );
+					$properties  = self::object_to_array( $properties );
+					$user_id     = self::get_user_id( $action, $properties );
 					$track[ $i ] = array(
 						'userId'     => $user_id,
 						'event'      => $event_name,
