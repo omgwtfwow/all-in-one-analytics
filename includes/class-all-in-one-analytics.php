@@ -1215,6 +1215,7 @@ class All_In_One_Analytics {
 
 	}
 
+
 	/**
 	 * Returns the properties for an event in a JSON encoded array
 	 *
@@ -1897,7 +1898,6 @@ class All_In_One_Analytics {
 			}
 		}
 
-
 		//WOOCOMMERCE
 		if ( $settings["woocommerce_event_settings"]['track_woocommerce_fieldset']['track_woocommerce'] === 'yes' ) {
 
@@ -2066,6 +2066,7 @@ class All_In_One_Analytics {
 					$track[ $i ] = array(
 						'event'      => $event_name,
 						'properties' => Array(),
+						'http_event' => $http_event
 					);
 					$i ++;
 

@@ -80,7 +80,7 @@ class All_In_One_Analytics_Admin {
 		$roles           = $wp_roles->get_names();
 		$categories      = Array();
 		$categories_list = get_categories();
-		//TODO finish th ecategory filter
+		//TODO finish the category filter
 		foreach ( $categories_list as $category ) {
 			array_push( $categories, $category->name );
 		}
@@ -376,154 +376,614 @@ class All_In_One_Analytics_Admin {
 
 				//WooCommerce
 				array(
-					'id'         => 'woocommerce_event_settings',
-					'type'       => 'group',
-					'options'    => array(
-						'cols'        => 4,
+					'id'      => 'woocommerce_event_settings',
+					'type'    => 'group',
+					'class'   => 'track_woocommerce_fieldset_2',
+					'options' => array(
+						'cols'        => 1,
 						'group_title' => esc_html__( 'WooCommerce Event Settings', 'plugin-name' ) . '<br><small>' . esc_html__( 'Purchase, Add To Cart, Viewed Product, etc...', 'plugin-name' ) . '</small>',
 
 					),
-					'attributes' => array(
-						'style' => 'width: 600px;',
-					),
-					'fields'     => array(
+					'fields'  => array(
 						array(
 							'type'        => 'fieldset',
 							'id'          => 'track_woocommerce_fieldset',
 							'title'       => 'Track WooCommerce',
 							'description' => 'Trigger events when people complete Woocommerce actions',
 							'options'     => array(
-								'cols' => 3
+								'cols' => 1
 							),
 							'fields'      => array(
 								array(
 									'id'   => 'track_woocommerce',
 									'type' => 'switcher'
-								)
-							)
-						),
-						array(
-							'type'        => 'fieldset',
-							'id'          => 'woocommerce_events_labels',
-							'title'       => 'Custom event labels',
-							'description' => 'Change the event labels',
-							'options'     => array(
-								'cols' => 2
-							),
-							'fields'      => array(
-
+								),
 								array(
-									'id'       => 'woocommerce_events_custom_labels',
-									'type'     => 'accordion',
-									'options'  => array(
-										'allow_all_open' => true
+									'id'      => 'hidden_1',
+									'type'    => 'hidden',
+									'default' => 'hidden',
+								),
+								array(
+									'id'         => 'woocommerce_events_custom_labels',
+									'type'       => 'accordion',
+									'dependency' => array(
+										'track_woocommerce',
+										'==',
+										'true'
 									),
-									'sections' => array(
+									'options'    => array(
+										'allow_all_open' => true,
+										'cols'           => 2
+									),
+									'sections'   => array(
+
+										//CART & PRODUCT EVENTs
 										array(
 											'options' => array(
 												'icon'   => 'fa fa-star',
 												'title'  => 'Product and Cart Events',
-												'closed' => true
+												'closed' => true,
+												'cols'   => 2
 											),
 											'fields'  => array(
+												//Product clicks
 												array(
-													'id'      => 'woocommerce_events_product_added',
-													'type'    => 'text',
-													'title'   => '</br>',
-													'prepend' => 'Product Added'
-
+													'type'       => 'fieldset',
+													'dependency' => array(
+														'track_woocommerce',
+														'==',
+														'true'
+													),
+													'id'         => 'track_product_clicks_fieldset',
+													'title'      => 'Track product clicks',
+													'options'    => array(
+														'cols' => 1
+													),
+													'fields'     => array(
+														array(
+															'id'      => 'track_product_clicks',
+															'type'    => 'switcher',
+															'default' => 'no',
+															'prepend' => 'Track product clicks?'
+														),
+														array(
+															'id'         => 'track_product_clicks_custom_event_label',
+															'type'       => 'text',
+															'dependency' => array(
+																'track_product_clicks',
+																'==',
+																'true'
+															),
+															'prepend'    => 'Event Name',
+															'attributes' => array(
+																'placeholder' => 'Product Clicked'
+															)
+														)
+													)
 												),
+												//Add to cart
 												array(
-													'id'      => 'woocommerce_events_product_removed',
-													'type'    => 'text',
-													'title'   => '</br>',
-													'prepend' => 'Product Removed'
-
+													'type'       => 'fieldset',
+													'dependency' => array(
+														'track_woocommerce',
+														'==',
+														'true'
+													),
+													'id'         => 'track_add_to_cart_fieldset',
+													'title'      => 'Track add to cart',
+													'options'    => array(
+														'cols' => 1
+													),
+													'fields'     => array(
+														array(
+															'id'      => 'track_add_to_cart',
+															'type'    => 'switcher',
+															'default' => 'yes',
+															'prepend' => 'Track add to cart?'
+														),
+														array(
+															'id'         => 'track_add_to_cart_custom_event_label',
+															'type'       => 'text',
+															'dependency' => array(
+																'track_add_to_cart',
+																'==',
+																'true'
+															),
+															'prepend'    => 'Event Name',
+															'attributes' => array(
+																'placeholder' => 'Product Added'
+															)
+														)
+													)
 												),
+												//Viewed cart
 												array(
-													'id'      => 'woocommerce_events_cart_viewed',
-													'type'    => 'text',
-													'title'   => '</br>',
-													'prepend' => 'Cart Viewed'
-
-												)
+													'type'       => 'fieldset',
+													'dependency' => array(
+														'track_woocommerce',
+														'==',
+														'true'
+													),
+													'id'         => 'track_cart_viewed_fieldset',
+													'title'      => 'Track cart viewed',
+													'options'    => array(
+														'cols' => 1
+													),
+													'fields'     => array(
+														array(
+															'id'      => 'track_cart_viewed',
+															'type'    => 'switcher',
+															'default' => 'yes',
+															'prepend' => 'Track cart viewed?'
+														),
+														array(
+															'id'         => 'track_cart_viewed_custom_event_label',
+															'type'       => 'text',
+															'dependency' => array(
+																'track_cart_viewed',
+																'==',
+																'true'
+															),
+															'prepend'    => 'Event Name',
+															'attributes' => array(
+																'placeholder' => 'Viewed Cart'
+															)
+														)
+													)
+												),
+												//Applied Coupon
+												array(
+													'type'       => 'fieldset',
+													'dependency' => array(
+														'track_woocommerce',
+														'==',
+														'true'
+													),
+													'id'         => 'track_coupons_fieldset',
+													'title'      => 'Track coupons',
+													'options'    => array(
+														'cols' => 1
+													),
+													'fields'     => array(
+														array(
+															'id'      => 'track_coupons',
+															'type'    => 'switcher',
+															'default' => 'yes',
+															'prepend' => 'Track coupons?'
+														),
+														array(
+															'id'         => 'track_coupons_custom_event_label',
+															'type'       => 'text',
+															'dependency' => array(
+																'track_coupons',
+																'==',
+																'true'
+															),
+															'prepend'    => 'Event Name',
+															'attributes' => array(
+																'placeholder' => 'Coupon Applied'
+															)
+														)
+													)
+												),
 											)
+
 										),
 
+										//CHECKOUT EVENTS
+										array(
+											'options' => array(
+												'icon'   => 'fa fa-star',
+												'title'  => 'Checkout Events',
+												'closed' => true,
+												'cols'   => 2
+											),
+											'fields'  => array(
+												//Checkout started
+												array(
+													'type'       => 'fieldset',
+													'dependency' => array(
+														'track_woocommerce',
+														'==',
+														'true'
+													),
+													'id'         => 'track_initiated_checkout_fieldset',
+													'title'      => 'Track checkout started',
+													'options'    => array(
+														'cols' => 1
+													),
+													'fields'     => array(
+														array(
+															'id'      => 'track_initiated_checkout',
+															'type'    => 'switcher',
+															'default' => 'no',
+															'prepend' => 'Track checkout started?'
+														),
+														array(
+															'id'         => 'track_initiated_checkout_custom_event_label',
+															'type'       => 'text',
+															'dependency' => array(
+																'track_initiated_checkout',
+																'==',
+																'true'
+															),
+															'prepend'    => 'Event Name',
+															'attributes' => array(
+																'placeholder' => 'Checkout Started'
+															)
+														)
+													)
+												),
+												//Checkout step viewed
+												array(
+													'type'       => 'fieldset',
+													'dependency' => array(
+														'track_woocommerce',
+														'==',
+														'true'
+													),
+													'id'         => 'track_checkout_step_viewed_fieldset',
+													'title'      => 'Track checkout step viewed',
+													'options'    => array(
+														'cols' => 1
+													),
+													'fields'     => array(
+														array(
+															'id'      => 'track_checkout_step_viewed',
+															'type'    => 'switcher',
+															'default' => 'yes',
+															'prepend' => 'Track checkout step viewed?'
+														),
+														array(
+															'id'         => 'track_checkout_step_viewed_custom_event_label',
+															'type'       => 'text',
+															'dependency' => array(
+																'track_checkout_step_viewed',
+																'==',
+																'true'
+															),
+															'prepend'    => 'Event Name',
+															'attributes' => array(
+																'placeholder' => 'Checkout Step Viewed'
+															)
+														)
+													)
+												),
+												//Checkout step completed
+												array(
+													'type'       => 'fieldset',
+													'dependency' => array(
+														'track_woocommerce',
+														'==',
+														'true'
+													),
+													'id'         => 'track_checkout_step_completed_fieldset',
+													'title'      => 'Track checkout step completed',
+													'options'    => array(
+														'cols' => 1
+													),
+													'fields'     => array(
+														array(
+															'id'      => 'track_checkout_step_completed',
+															'type'    => 'switcher',
+															'default' => 'yes',
+															'prepend' => 'Track check out steps?'
+														),
+														array(
+															'id'         => 'track_checkout_step_completed_custom_event_label',
+															'type'       => 'text',
+															'dependency' => array(
+																'track_checkout_step_completed',
+																'==',
+																'true'
+															),
+															'prepend'    => 'Event Name',
+															'attributes' => array(
+																'placeholder' => 'Checkout Step Completed'
+															)
+														)
+													)
+												),
+											)
+
+										),
+
+										//ORDER EVENTS
 										array(
 											'options' => array(
 												'icon'   => 'fa fa-star',
 												'title'  => 'Order Events',
-												'closed' => true
+												'closed' => true,
+												'cols'   => 2
 											),
 											'fields'  => array(
+												//Order Processing
 												array(
-													'id'      => 'woocommerce_event_order_processing',
-													'type'    => 'text',
-													'title'   => '</br>',
-													'prepend' => 'Order Processing'
-
+													'type'       => 'fieldset',
+													'dependency' => array(
+														'track_woocommerce',
+														'==',
+														'true'
+													),
+													'id'         => 'track_order_processing_fieldset',
+													'title'      => 'Track order processing',
+													'options'    => array(
+														'cols' => 1
+													),
+													'fields'     => array(
+														array(
+															'id'      => 'track_order_processing',
+															'type'    => 'switcher',
+															'default' => 'no',
+															'prepend' => 'Track order processing?'
+														),
+														array(
+															'id'         => 'track_order_processing_custom_event_label',
+															'type'       => 'text',
+															'dependency' => array(
+																'track_order_processing',
+																'==',
+																'true'
+															),
+															'prepend'    => 'Event Name',
+															'attributes' => array(
+																'placeholder' => 'Order Processing'
+															)
+														)
+													)
 												),
+												//Order Pending
 												array(
-													'id'      => 'woocommerce_event_order_pending',
-													'type'    => 'text',
-													'title'   => '</br>',
-													'prepend' => 'Order Pending'
-
+													'type'       => 'fieldset',
+													'dependency' => array(
+														'track_woocommerce',
+														'==',
+														'true'
+													),
+													'id'         => 'track_order_pending_fieldset',
+													'title'      => 'Track order pending',
+													'options'    => array(
+														'cols' => 1
+													),
+													'fields'     => array(
+														array(
+															'id'      => 'track_order_pending',
+															'type'    => 'switcher',
+															'default' => 'no',
+															'prepend' => 'Track order pending?'
+														),
+														array(
+															'id'         => 'track_order_pending_custom_event_label',
+															'type'       => 'text',
+															'dependency' => array(
+																'track_order_pending',
+																'==',
+																'true'
+															),
+															'prepend'    => 'Event Name',
+															'attributes' => array(
+																'placeholder' => 'Order Pending'
+															)
+														)
+													)
 												),
+												//Order Failed
 												array(
-													'id'      => 'woocommerce_event_order_failed',
-													'type'    => 'text',
-													'title'   => '</br>',
-													'prepend' => 'Order Failed'
-
+													'type'       => 'fieldset',
+													'dependency' => array(
+														'track_woocommerce',
+														'==',
+														'true'
+													),
+													'id'         => 'track_order_failed_fieldset',
+													'title'      => 'Track order failed',
+													'options'    => array(
+														'cols' => 1
+													),
+													'fields'     => array(
+														array(
+															'id'      => 'track_order_failed',
+															'type'    => 'switcher',
+															'default' => 'no',
+															'prepend' => 'Track order failed?'
+														),
+														array(
+															'id'         => 'track_order_failed_custom_event_label',
+															'type'       => 'text',
+															'dependency' => array(
+																'track_order_failed',
+																'==',
+																'true'
+															),
+															'prepend'    => 'Event Name',
+															'attributes' => array(
+																'placeholder' => 'Order Failed'
+															)
+														)
+													)
 												),
+												//Order On-Hold
 												array(
-													'id'      => 'woocommerce_event_order_on_hold',
-													'type'    => 'text',
-													'title'   => '</br>',
-													'prepend' => 'Order On-Hold'
-
+													'type'       => 'fieldset',
+													'dependency' => array(
+														'track_woocommerce',
+														'==',
+														'true'
+													),
+													'id'         => 'track_order_on_hold_fieldset',
+													'title'      => 'Track order on-hold',
+													'options'    => array(
+														'cols' => 1
+													),
+													'fields'     => array(
+														array(
+															'id'      => 'track_order_on_hold',
+															'type'    => 'switcher',
+															'default' => 'no',
+															'prepend' => 'Track order on-hold?'
+														),
+														array(
+															'id'         => 'track_track_order_on_hold_custom_event_label',
+															'type'       => 'text',
+															'dependency' => array(
+																'track_order_on_hold',
+																'==',
+																'true'
+															),
+															'prepend'    => 'Event Name',
+															'attributes' => array(
+																'placeholder' => 'Order On-hold'
+															)
+														)
+													)
 												),
+												//Order Paid
 												array(
-													'id'      => 'woocommerce_event_order_paid',
-													'type'    => 'text',
-													'title'   => '</br>',
-													'prepend' => 'Order Paid'
-
+													'type'       => 'fieldset',
+													'dependency' => array(
+														'track_woocommerce',
+														'==',
+														'true'
+													),
+													'id'         => 'track_order_paid_fieldset',
+													'title'      => 'Track order paid',
+													'options'    => array(
+														'cols' => 1
+													),
+													'fields'     => array(
+														array(
+															'id'      => 'track_order_paid',
+															'type'    => 'switcher',
+															'default' => 'yes',
+															'prepend' => 'Track order paid?'
+														),
+														array(
+															'id'         => 'track_order_paid_custom_event_label',
+															'type'       => 'text',
+															'dependency' => array(
+																'track_order_paid',
+																'==',
+																'true'
+															),
+															'prepend'    => 'Event Name',
+															'attributes' => array(
+																'placeholder' => 'Order Paid'
+															)
+														)
+													)
 												),
+												//Order Completed
 												array(
-													'id'      => 'woocommerce_event_order_completed',
-													'type'    => 'text',
-													'title'   => '</br>',
-													'prepend' => 'Order Completed'
-
+													'type'       => 'fieldset',
+													'dependency' => array(
+														'track_woocommerce',
+														'==',
+														'true'
+													),
+													'id'         => 'track_order_completed_fieldset',
+													'title'      => 'Track order completed',
+													'options'    => array(
+														'cols' => 1
+													),
+													'fields'     => array(
+														array(
+															'id'      => 'track_order_completed',
+															'type'    => 'switcher',
+															'default' => 'yes',
+															'prepend' => 'Track order paid?'
+														),
+														array(
+															'id'         => 'track_order_completed_custom_event_label',
+															'type'       => 'text',
+															'dependency' => array(
+																'track_order_completed',
+																'==',
+																'true'
+															),
+															'prepend'    => 'Event Name',
+															'attributes' => array(
+																'placeholder' => 'Order Completed'
+															)
+														)
+													)
 												),
+												//Order Refunded
 												array(
-													'id'      => 'woocommerce_event_order_refunded',
-													'type'    => 'text',
-													'title'   => '</br>',
-													'prepend' => 'Order Refunded'
-
+													'type'       => 'fieldset',
+													'dependency' => array(
+														'track_woocommerce',
+														'==',
+														'true'
+													),
+													'id'         => 'track_order_refunded_fieldset',
+													'title'      => 'Track order refunded',
+													'options'    => array(
+														'cols' => 1
+													),
+													'fields'     => array(
+														array(
+															'id'      => 'track_order_refunded',
+															'type'    => 'switcher',
+															'default' => 'no',
+															'prepend' => 'Track order refunded?'
+														),
+														array(
+															'id'         => 'track_order_refunded_custom_event_label',
+															'type'       => 'text',
+															'dependency' => array(
+																'track_order_refunded',
+																'==',
+																'true'
+															),
+															'prepend'    => 'Event Name',
+															'attributes' => array(
+																'placeholder' => 'Order Refunded'
+															)
+														)
+													)
 												),
+												//Order Cancelled
 												array(
-													'id'      => 'woocommerce_event_order_cancelled',
-													'type'    => 'text',
-													'title'   => '</br>',
-													'prepend' => 'Order Cancelled'
-
+													'type'       => 'fieldset',
+													'dependency' => array(
+														'track_woocommerce',
+														'==',
+														'true'
+													),
+													'id'         => 'track_order_cancelled_fieldset',
+													'title'      => 'Track order cancelled',
+													'options'    => array(
+														'cols' => 1
+													),
+													'fields'     => array(
+														array(
+															'id'      => 'track_order_cancelled',
+															'type'    => 'switcher',
+															'default' => 'yes',
+															'prepend' => 'Track order cancelled?'
+														),
+														array(
+															'id'         => 'track_order_cancelled_custom_event_label',
+															'type'       => 'text',
+															'dependency' => array(
+																'track_order_cancelled',
+																'==',
+																'true'
+															),
+															'prepend'    => 'Event Name',
+															'attributes' => array(
+																'placeholder' => 'Order Cancelled'
+															)
+														)
+													)
 												),
-												array(
-													'id'      => 'woocommerce_event_order_coupon_applied',
-													'type'    => 'text',
-													'title'   => '</br>',
-													'prepend' => 'Coupon Applied'
-
-												)
 											)
+
 										)
+
 									)
 								)
+
 							)
 						),
 						array(
@@ -540,7 +1000,7 @@ class All_In_One_Analytics_Admin {
 									'type' => 'switcher'
 								)
 							)
-						)
+						),
 					)
 				),
 
@@ -802,9 +1262,9 @@ class All_In_One_Analytics_Admin {
 					)
 				),
 
-				//Gamipress
+				//Gamipress WIP
 
-				//Video
+				//Video WIP
 
 				//GLOBAL OPTIONS
 				array(
