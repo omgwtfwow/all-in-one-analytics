@@ -609,5 +609,4 @@ class All_In_One_Analytics_Public {
 		All_In_One_Analytics_Cookie::set_cookie( 'quiz_completed', $properties, $data_id );
 	}
 
-
 }

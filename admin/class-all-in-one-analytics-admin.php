@@ -404,7 +404,7 @@ class All_In_One_Analytics_Admin {
 									'default' => 'hidden',
 								),
 								array(
-									'id'         => 'woocommerce_events_custom_labels',
+									'id'         => 'woocommerce_events',
 									'type'       => 'accordion',
 									'dependency' => array(
 										'track_woocommerce',
@@ -492,6 +492,41 @@ class All_In_One_Analytics_Admin {
 															'prepend'    => 'Event Name',
 															'attributes' => array(
 																'placeholder' => 'Product Added'
+															)
+														)
+													)
+												),
+												//Removed from cart
+												array(
+													'type'       => 'fieldset',
+													'dependency' => array(
+														'track_woocommerce',
+														'==',
+														'true'
+													),
+													'id'         => 'track_remove_from_cart_fieldset',
+													'title'      => 'Track products removed from cart',
+													'options'    => array(
+														'cols' => 1
+													),
+													'fields'     => array(
+														array(
+															'id'      => 'track_remove_from_cart',
+															'type'    => 'switcher',
+															'default' => 'yes',
+															'prepend' => 'Track remove from cart?'
+														),
+														array(
+															'id'         => 'track_remove_from_cart_custom_event_label',
+															'type'       => 'text',
+															'dependency' => array(
+																'track_remove_from_cart',
+																'==',
+																'true'
+															),
+															'prepend'    => 'Event Name',
+															'attributes' => array(
+																'placeholder' => 'Product Removed'
 															)
 														)
 													)

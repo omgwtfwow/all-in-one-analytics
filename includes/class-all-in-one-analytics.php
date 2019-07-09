@@ -283,22 +283,55 @@ class All_In_One_Analytics {
 			$this->loader->add_action( 'gform_after_submission', $plugin_public, 'completed_form_gf', 9, 2 );
 		}
 
-
 		//WOOCOMMERCE
-		if ( $settings["woocommerce_event_settings"]['track_woocommerce_fieldset']['track_woocommerce'] === 'yes' ) {
-			//$this->loader->add_action( 'woocommerce_before_single_product', $plugin_public, 'viewed_product', 9 );
-			$this->loader->add_action( 'woocommerce_add_to_cart', $plugin_public, 'product_added_normal', 9, 6 );
-			$this->loader->add_action( 'woocommerce_ajax_added_to_cart', $plugin_public, 'product_added_ajax', 9, 1 );
-			$this->loader->add_action( 'woocommerce_remove_cart_item', $plugin_public, 'product_removed', 9, 2 );
-			$this->loader->add_action( 'woocommerce_cart_item_restored', $plugin_public, 'product_readded', 5, 2 );
-			//$this->loader->add_action( 'woocommerce_before_cart', $plugin_public, 'viewed_cart', 5 );
-			$this->loader->add_action( 'woocommerce_checkout_process', $plugin_public, 'checkout_started', 5 );
-			$this->loader->add_action( 'woocommerce_order_status_pending', $plugin_public, 'order_pending', 5, 1 );
-			$this->loader->add_action( 'woocommerce_order_status_processing', $plugin_public, 'order_processing', 5, 1 );
-			$this->loader->add_action( 'woocommerce_order_status_completed', $plugin_public, 'order_completed', 9, 1 );
-			$this->loader->add_action( 'woocommerce_payment_complete', $plugin_public, 'order_paid', 9, 1 );
-			$this->loader->add_action( 'woocommerce_order_status_cancelled', $plugin_public, 'order_cancelled', 9, 1 );
-			$this->loader->add_action( 'woocommerce_applied_coupon', $plugin_public, 'coupon_added', 9, 1 );
+		if ( $settings["woocommerce_event_settings"]["track_woocommerce_fieldset"]["track_woocommerce"] === 'yes' ) {
+
+			if ( $settings["woocommerce_event_settings"]["track_woocommerce_fieldset"]["woocommerce_events"]["track_add_to_cart_fieldset"]["track_add_to_cart"] == 'yes' ) {
+				$this->loader->add_action( 'woocommerce_add_to_cart', $plugin_public, 'product_added_normal', 9, 6 );
+				$this->loader->add_action( 'woocommerce_ajax_added_to_cart', $plugin_public, 'product_added_ajax', 9, 1 );
+				$this->loader->add_action( 'woocommerce_cart_item_restored', $plugin_public, 'product_readded', 5, 2 );
+
+			}
+
+			if ( $settings["woocommerce_event_settings"]["track_woocommerce_fieldset"]["woocommerce_events"]["track_remove_from_cart_fieldset"]["track_remove_from_cart"] == 'yes' ) {
+				$this->loader->add_action( 'woocommerce_remove_cart_item', $plugin_public, 'product_removed', 9, 2 );
+			}
+
+			if ( $settings["woocommerce_event_settings"]["track_woocommerce_fieldset"]["woocommerce_events"]["track_initiated_checkout_fieldset"]["track_initiated_checkout"] == 'yes' ) {
+				$this->loader->add_action( 'woocommerce_checkout_process', $plugin_public, 'checkout_started', 5 );
+
+			}
+
+			if ( $settings["woocommerce_event_settings"]["track_woocommerce_fieldset"]["woocommerce_events"]["track_order_pending_fieldset"]["track_order_pending"] ) {
+				$this->loader->add_action( 'woocommerce_order_status_pending', $plugin_public, 'order_pending', 5, 1 );
+
+			}
+
+			if ( $settings["woocommerce_event_settings"]["track_woocommerce_fieldset"]["woocommerce_events"]["track_order_processing_fieldset"]["track_order_processing"] == 'yes' ) {
+				$this->loader->add_action( 'woocommerce_order_status_processing', $plugin_public, 'order_processing', 5, 1 );
+
+			}
+
+			if ( $settings["woocommerce_event_settings"]["track_woocommerce_fieldset"]["woocommerce_events"]["track_order_completed_fieldset"]["track_order_completed"] == 'yes' ) {
+				$this->loader->add_action( 'woocommerce_order_status_completed', $plugin_public, 'order_completed', 9, 1 );
+			}
+
+			if ( $settings["woocommerce_event_settings"]["track_woocommerce_fieldset"]["woocommerce_events"]["track_order_paid_fieldset"] == 'yes' ) {
+				$this->loader->add_action( 'woocommerce_payment_complete', $plugin_public, 'order_paid', 9, 1 );
+
+			}
+
+			if ( $settings["woocommerce_event_settings"]["track_woocommerce_fieldset"]["woocommerce_events"]["track_order_cancelled_fieldset"] ) {
+				$this->loader->add_action( 'woocommerce_order_status_cancelled', $plugin_public, 'order_cancelled', 9, 1 );
+
+			}
+
+			if ( $settings["woocommerce_event_settings"]["track_woocommerce_fieldset"]["woocommerce_events"]["track_coupons_fieldset"]["track_coupons"] == 'yes' ) {
+				$this->loader->add_action( 'woocommerce_applied_coupon', $plugin_public, 'coupon_added', 9, 1 );
+
+			}
+
+			// TODO order on hold? order refunded? order cancelled?
 		}
 
 		//LEARNDASH
@@ -1215,7 +1248,6 @@ class All_In_One_Analytics {
 
 	}
 
-
 	/**
 	 * Returns the properties for an event in a JSON encoded array
 	 *
@@ -1917,7 +1949,9 @@ class All_In_One_Analytics {
 
 				}
 
-				if ( is_product() && All_In_One_Analytics_Cookie::match_cookie( 'product_clicked' ) ) {
+
+				if ( $settings["woocommerce_event_settings"]["track_woocommerce_fieldset"]["woocommerce_events"]["track_product_clicks_fieldset"] == 'yes'
+				     && is_product() && All_In_One_Analytics_Cookie::match_cookie( 'product_clicked' ) ) {
 					$action                     = 'product_clicked';
 					$event_name                 = self::get_event_name( $action );
 					$properties                 = All_In_One_Analytics::get_product_details_from_product_id( get_the_ID() );
@@ -1931,8 +1965,7 @@ class All_In_One_Analytics {
 				}
 
 				// PRODUCT ADDED
-				if ( All_In_One_Analytics_Cookie::match_cookie( 'product_added_normal' ) ) {
-
+				if ( All_In_One_Analytics_Cookie::match_cookie( 'product_added_normal' ) && $settings["woocommerce_event_settings"]["track_woocommerce_fieldset"]["woocommerce_events"]["track_add_to_cart_fieldset"]["track_add_to_cart"] == 'yes' ) {
 					$action     = 'woocommerce_add_to_cart';
 					$http_event = 'product_added_normal';
 					$event_name = self::get_event_name( $action );
@@ -1958,7 +1991,7 @@ class All_In_One_Analytics {
 					}
 				}
 
-				if ( All_In_One_Analytics_Cookie::match_cookie( 'product_added_ajax' ) ) {
+				if ( All_In_One_Analytics_Cookie::match_cookie( 'product_added_ajax' ) && $settings["woocommerce_event_settings"]["track_woocommerce_fieldset"]["woocommerce_events"]["track_add_to_cart_fieldset"]["track_add_to_cart"] == 'yes' ) {
 
 					$action     = 'woocommerce_ajax_added_to_cart';
 					$http_event = 'product_added_ajax';
@@ -1986,7 +2019,7 @@ class All_In_One_Analytics {
 				}
 
 				// PRODUCT REMOVED
-				if ( All_In_One_Analytics_Cookie::match_cookie( 'product_removed' ) ) {
+				if ( All_In_One_Analytics_Cookie::match_cookie( 'product_removed' ) && $settings["woocommerce_event_settings"]["track_woocommerce_fieldset"]["woocommerce_events"]["track_remove_from_cart_fieldset"]["track_remove_from_cart"] == 'yes' ) {
 					$action     = 'woocommerce_remove_cart_item';
 					$event_name = self::get_event_name( $action );
 					$cookies    = All_In_One_Analytics_Cookie::get_every_cookie( 'product_removed' );
@@ -2013,7 +2046,7 @@ class All_In_One_Analytics {
 				}
 
 				// PRODUCT RESTORED = 'woocommerce_cart_item_restored
-				if ( All_In_One_Analytics_Cookie::match_cookie( 'product_readded' ) ) {
+				if ( All_In_One_Analytics_Cookie::match_cookie( 'product_readded' && $settings["woocommerce_event_settings"]["track_woocommerce_fieldset"]["woocommerce_events"]["track_add_to_cart_fieldset"]["track_add_to_cart"] == 'yes' ) ) {
 					$action     = 'woocommerce_cart_item_restored';
 					$event_name = self::get_event_name( $action );
 					$cookies    = All_In_One_Analytics_Cookie::get_every_cookie( 'product_readded' );
@@ -2036,7 +2069,7 @@ class All_In_One_Analytics {
 				}
 
 				// VIEWED CART
-				if ( is_cart() ) {
+				if ( is_cart() && $settings["woocommerce_event_settings"]["track_woocommerce_fieldset"]["woocommerce_events"]["track_cart_viewed_fieldset"]["track_cart_viewed"] == 'yes' ) {
 					$action                     = 'is_cart';
 					$event_name                 = self::get_event_name( $action );
 					$track[ $i ]                = array(
@@ -2048,7 +2081,7 @@ class All_In_One_Analytics {
 				}
 
 				// VIEWED CHECKOUT STEP
-				if ( is_checkout() ) {
+				if ( is_checkout() && $settings["woocommerce_event_settings"]["track_woocommerce_fieldset"]["woocommerce_events"]["track_checkout_step_viewed_fieldset"] == 'yes' ) {
 					$action                     = 'is_checkout';
 					$event_name                 = self::get_event_name( $action );
 					$track[ $i ]                = array(
@@ -2059,7 +2092,7 @@ class All_In_One_Analytics {
 					$i ++;
 				}
 
-				if ( All_In_One_Analytics_Cookie::match_cookie( 'checkout_started' ) ) {
+				if ( All_In_One_Analytics_Cookie::match_cookie( 'checkout_started' ) && $settings["woocommerce_event_settings"]["track_woocommerce_fieldset"]["woocommerce_events"]["track_initiated_checkout_fieldset"] == 'yes' ) {
 					$action      = 'woocommerce_checkout_process';
 					$http_event  = 'checkout_started';
 					$event_name  = self::get_event_name( $action );
@@ -2073,7 +2106,7 @@ class All_In_One_Analytics {
 				}
 
 				// ORDER PENDING
-				if ( All_In_One_Analytics_Cookie::match_cookie( 'order_pending' ) ) {
+				if ( All_In_One_Analytics_Cookie::match_cookie( 'order_pending' ) && $settings["woocommerce_event_settings"]["track_woocommerce_fieldset"]["woocommerce_events"]["track_order_pending_fieldset"]["track_order_pending"] = 'yes' ) {
 					$action     = 'woocommerce_order_status_pending';
 					$http_event = 'order_pending';
 					$event_name = self::get_event_name( $action );
@@ -2100,7 +2133,7 @@ class All_In_One_Analytics {
 				}
 
 				// ORDER PROCESSING
-				if ( All_In_One_Analytics_Cookie::match_cookie( 'order_processing' ) ) {
+				if ( All_In_One_Analytics_Cookie::match_cookie( 'order_processing' ) && $settings["woocommerce_event_settings"]["track_woocommerce_fieldset"]["woocommerce_events"]["track_order_processing_fieldset"]["track_order_processing"] == 'yes' ) {
 					$action     = 'woocommerce_order_status_processing';
 					$http_event = 'order_processing';
 					$event_name = self::get_event_name( $action );
@@ -2127,7 +2160,7 @@ class All_In_One_Analytics {
 				}
 
 				// ORDER COMPLETED
-				if ( All_In_One_Analytics_Cookie::match_cookie( 'order_completed' ) ) {
+				if ( All_In_One_Analytics_Cookie::match_cookie( 'order_completed' ) && $settings["woocommerce_event_settings"]["track_woocommerce_fieldset"]["woocommerce_events"]["track_order_completed_fieldset"]["track_order_completed"] == 'yes' ) {
 					$action     = 'woocommerce_order_status_completed';
 					$http_event = 'order_completed';
 					$event_name = self::get_event_name( $action );
@@ -2155,7 +2188,7 @@ class All_In_One_Analytics {
 				}
 
 				// ORDER PAID
-				if ( All_In_One_Analytics_Cookie::match_cookie( 'order_paid' ) ) {
+				if ( All_In_One_Analytics_Cookie::match_cookie( 'order_paid' ) && $settings["woocommerce_event_settings"]["track_woocommerce_fieldset"]["woocommerce_events"]["track_order_paid_fieldset"]["track_order_paid"] ) {
 					$action     = 'woocommerce_payment_complete';
 					$http_event = 'order_paid';
 					$event_name = self::get_event_name( $action );
@@ -2183,7 +2216,7 @@ class All_In_One_Analytics {
 				}
 
 				// ORDER CANCELLED
-				if ( All_In_One_Analytics_Cookie::match_cookie( 'order_cancelled' ) ) {
+				if ( All_In_One_Analytics_Cookie::match_cookie( 'order_cancelled' ) && $settings["woocommerce_event_settings"]["track_woocommerce_fieldset"]["woocommerce_events"]["track_order_cancelled_fieldset"]["track_order_cancelled"] == 'yes' ) {
 					$action     = 'woocommerce_order_status_cancelled';
 					$event_name = self::get_event_name( $action );
 					$cookies    = All_In_One_Analytics_Cookie::get_every_cookie( 'order_cancelled' );
@@ -2211,7 +2244,7 @@ class All_In_One_Analytics {
 				}
 
 				//COUPON ADDED
-				if ( All_In_One_Analytics_Cookie::match_cookie( 'coupon_added' ) ) {
+				if ( All_In_One_Analytics_Cookie::match_cookie( 'coupon_added' ) && $settings["woocommerce_event_settings"]["track_woocommerce_fieldset"]["woocommerce_events"]["track_coupons_fieldset"]["track_coupons"] == 'yes' ) {
 					$action     = 'woocommerce_applied_coupon';
 					$http_event = 'coupon_added';
 					$event_name = self::get_event_name( $action );
@@ -2494,6 +2527,7 @@ class All_In_One_Analytics {
 		do_action( 'dispatch_queue' ); //dispatches the queue to clear events from db
 
 		return $track; // Returns an array of track calls
+
 	}
 
 	/**
