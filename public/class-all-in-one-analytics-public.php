@@ -3,9 +3,6 @@
 /**
  * The public-facing functionality of the plugin.
  *
- * Defines the plugin name, version, and two examples hooks for how to
- * enqueue the public-facing stylesheet and JavaScript.
- *
  * @package    All_In_One_Analytics
  * @subpackage All_In_One_Analytics/public
  * @author     Juan Gonzalez <hello@juangonzalez.com.au>

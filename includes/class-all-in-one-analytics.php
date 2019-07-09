@@ -194,14 +194,10 @@ class All_In_One_Analytics {
 	 * @access   private
 	 */
 	private function define_admin_hooks() {
-
 		$plugin_admin = new All_In_One_Analytics_Admin( $this->get_plugin_name(), $this->get_version() );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
 		$this->loader->add_action( 'init', $plugin_admin, 'create_menu', 999 );
 		$this->loader->add_action( All_In_One_Analytics_Cron::ALL_IN_ONE_ANALYTICS_EVENT_HOURLY_HOOK, $plugin_admin, 'run_hourly_event' );
-
-		//	$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
-
 	}
 
 	/**
@@ -1134,7 +1130,6 @@ class All_In_One_Analytics {
 			}
 		}
 		//GRAVITY FORMS [0]=$entry [1]= $form
-//TODO
 		if ( $action_hook == "gform_after_submission" ) {
 			$entry                 = $data["args"][0];
 			$entry_id              = $entry['id'];

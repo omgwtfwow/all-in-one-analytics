@@ -1,68 +1,112 @@
-=== Plugin Name ===
+=== All In One Analytics ===
 Contributors: juanin8
 Donate link: https://www.juangonzalez.com.au
-Tags: comments, spam
+Tags: analytics, tracking, google analytics, google adwords, google tag manager, facebook pixel, zapier
 Requires at least: 3.0.1
 Tested up to: 3.4
-Stable tag: 4.3
+Stable tag: 5.3
+Requires PHP: 5.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Here is a short description of the plugin.  This should be no more than 150 characters.  No markup here.
+All your analytics stuff sorted. User-level tracking for WordPress. Send events to Google Analytics, Facebook Pixel, Zapier, Google Ads, Google Tag Manager... and more soon.
 
 == Description ==
 
-This is the long description.  No limit, and you can use Markdown (as well as in the following sections).
+Version 1!
 
-For backwards compatibility, if this section is missing, the full length of the short description will be used, and
-Markdown parsed.
+Trying to bring user-level analytics to WordPress.
 
-A few notes about the sections above:
+All of the tracking is based on user IDs for both anonymous and registered users.
 
-*   "Contributors" is a comma separated list of wp.org/wp-plugins.org usernames
-*   "Tags" is a comma separated list of tags that apply to the plugin
-*   "Requires at least" is the lowest version that the plugin will work on
-*   "Tested up to" is the highest version that you've *successfully used to test the plugin*. Note that it might work on
-higher versions... this is just the highest one you've verified.
-*   Stable tag should indicate the Subversion "tag" of the latest stable version, or "trunk," if you use `/trunk/` for
-stable.
+It's a custom distribution of Segment.com's analytics.js for the client-side events, and my own solution for the server-side events.
 
-    Note that the `readme.txt` of the stable tag is the one that is considered the defining one for the plugin, so
-if the `/trunk/readme.txt` file says that the stable tag is `4.3`, then it is `/tags/4.3/readme.txt` that'll be used
-for displaying information about the plugin.  In this situation, the only thing considered from the trunk `readme.txt`
-is the stable tag pointer.  Thus, if you develop in trunk, you can update the trunk `readme.txt` to reflect changes in
-your in-development version, without having that information incorrectly disclosed about the current stable version
-that lacks those changes -- as long as the trunk's `readme.txt` points to the correct stable tag.
+For version 1 here is what's supported:
 
-    If no stable tag is provided, it is assumed that trunk is stable, but you should specify "trunk" if that's where
-you put the stable version, in order to eliminate any doubt.
+**EVENT SOURCES**
+
+We collect detailed event data from these sources.
+
+- **WordPress Core:** Signups, log ins, comments, page views, etc...
+
+
+- **WooCommerce:** Adds to cart (ajax or not), check out events, order events, there are a lot of WooCommerce events. And each one has a lot of properties. I will document it better in the upcoming versions.
+
+
+- **LearnDash:** Enrollments, topics, lessons, quizzes (completed, passed and failed), courses and assignments
+
+
+- **Ninja Forms & Gravity Forms**:
+Track forms :)
+
+
+**DATA DESTINATIONS**
+
+This is where we send the data to. Advanced settings are available for each destination (think custom dimensions, advanced matching, hashing, whitelisting, etc...)
+
+- **Google Analytics**
+- **Google Ads**
+- **Google Tag Manager**
+- **Facebook Pixel**
+- **Zapier**
+
+
+The idea is to integrate more events sources and data destinations, as requested by the community.
+
+
+
+For now, there are advanced settings that allow you to track custom meta based on meta keys, and a lot of other settings I haven't had time to document yet.
 
 == Installation ==
 
-This section describes how to install the plugin and get it working.
 
 e.g.
 
 1. Upload `all-in-one-analytics.php` to the `/wp-content/plugins/` directory
-1. Activate the plugin through the 'Plugins' menu in WordPress
-1. Place `<?php do_action('plugin_name_hook'); ?>` in your templates
+2. Activate the plugin through the 'Plugins' menu in WordPress
+3. Go to 'Settings' and choose 'All In One Analytics and Tracking' to configure the plugin
 
 == Frequently Asked Questions ==
 
-= A question that someone might have =
+= Can this add the basic tracking codes to my site? =
 
-An answer to that question.
+Yes
 
-= What about foo bar? =
+= What properties are attached to each event? =
 
-Answer to foo bar dilemma.
+I will document this more, but basically everything!
+
+For example, an 'Add to Cart' event in WooCommerce will include everything from the product's SKU, price and variation to the product's image url... some events have 20+ properties. All the data.
+
+= Who is this tool for? =
+
+You're able to use it to simply add the tracking codes to your site, but you also have the most advanced tracking features for each destination. So, it's all in one. It's meant for everyone!
+
+= Why haven't you included more sources? =
+
+I have several more in the works including Gamipress, FV Player and CF7. If you have one you want let me know.
+
+= Why haven't you included more destinations? =
+
+I specifically selected the 'launch' destinations: GA, AdWords, Tag Manager and Zapier because with these you can cover a lot of bases!
+
+I will be adding more destinations in the future. Segment's analytics.js supports 100+ destinations already, it's a matter of deciding how to add them so that they don't slow your site down :)
+
+= How does the tracking work? =
+
+There are 3 basic types of 'calls' used by the plugin:
+- Page: The details of the page
+- Identify: The details of the user
+- Track: The details of the event being tracked
+
+Combining the three results in a consistent tracking model.
+
+This is version 1 of the plugin, but I will try to document how to use it and how to make the most of it :) It is all based on Segment.com's open source analytics.js and their tracking models.
+
 
 == Screenshots ==
 
-1. This screen shot description corresponds to screenshot-1.(png|jpg|jpeg|gif). Note that the screenshot is taken from
-the /assets directory or the directory that contains the stable readme.txt (tags or trunk). Screenshots in the /assets
-directory take precedence. For example, `/assets/screenshot-1.png` would win over `/tags/4.3/screenshot-1.png`
-(or jpg, jpeg, gif).
+1. This screen shot description corresponds to screenshot-1.(png|jpg|jpeg|gif).
 2. This is the second screen shot
 
 == Changelog ==
@@ -73,42 +117,7 @@ directory take precedence. For example, `/assets/screenshot-1.png` would win ove
 
 = 0.5 =
 * List versions from most recent at top to oldest at bottom.
-
 == Upgrade Notice ==
 
 = 1.0 =
-Upgrade notices describe the reason a user should upgrade.  No more than 300 characters.
-
-= 0.5 =
-This version fixes a security related bug.  Upgrade immediately.
-
-== Arbitrary section ==
-
-You may provide arbitrary sections, in the same format as the ones above.  This may be of use for extremely complicated
-plugins where more information needs to be conveyed that doesn't fit into the categories of "description" or
-"installation."  Arbitrary sections will be shown below the built-in sections outlined above.
-
-== A brief Markdown Example ==
-
-Ordered list:
-
-1. Some feature
-1. Another feature
-1. Something else about the plugin
-
-Unordered list:
-
-* something
-* something else
-* third thing
-
-Here's a link to [WordPress](http://wordpress.org/ "Your favorite software") and one to [Markdown's Syntax Documentation][markdown syntax].
-Titles are optional, naturally.
-
-[markdown syntax]: http://daringfireball.net/projects/markdown/syntax
-            "Markdown is what the parser uses to process much of the readme file"
-
-Markdown uses email style notation for blockquotes and I've been told:
-> Asterisks for *emphasis*. Double it up  for **strong**.
-
-`<?php code(); // goes in backticks ?>`
+Version 1!

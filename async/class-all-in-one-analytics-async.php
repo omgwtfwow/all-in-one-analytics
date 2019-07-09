@@ -313,8 +313,11 @@ class All_In_One_Analytics_Async_Events_Process extends WP_Background_Process {
 				return false;
 			}
 
-			//FIXME switch off for production
-			$cookie = new WP_Http_Cookie( 'XDEBUG_SESSION=PHPSTORM;path=/;' );
+			if ( ! isset( $post ) ) {
+				return false;
+			}
+
+			//$cookie = new WP_Http_Cookie( 'XDEBUG_SESSION=PHPSTORM;path=/;' );
 
 			//POST
 			$response = wp_remote_post(
@@ -326,7 +329,8 @@ class All_In_One_Analytics_Async_Events_Process extends WP_Background_Process {
 					'blocking'    => false,
 					'headers'     => array(),
 					'body'        => $post,
-					'cookies'     => array( $cookie )
+					//	'cookies'     => array( $cookie )
+					'cookies'     => array()
 				)
 			);
 

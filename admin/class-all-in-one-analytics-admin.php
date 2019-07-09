@@ -3,8 +3,6 @@
 /**
  * The admin-specific functionality of the plugin.
  *
- * Defines the plugin name, version, and two examples hooks for how to
- * enqueue the admin-specific stylesheet and JavaScript.
  *
  * @package    All_In_One_Analytics
  * @subpackage All_In_One_Analytics/admin
@@ -331,6 +329,17 @@ class All_In_One_Analytics_Admin {
 						'style' => 'width: 600px;',
 					),
 					'fields'     => array(
+						array(
+							'type'       => 'content',
+							'wrap_class' => 'no-border-bottom',
+							// for all fieds
+							'title'      => 'Tracking Forms',
+							//'content' => 'In order for the forms to be tracked server-side (ie, for Zapier) a user id must be included.',
+							'content'    => esc_html__( 'In order for the forms to be tracked server-side (ie, for Zapier) a user id must be included', 'plugin-name' ) . '<br>' . esc_html__( 'This happens automatically for logged-in users, but you can also include a field with the label aio-id and put the user id there.', 'plugin-name' ) . '',
+							//	'before' => 'Before Text',
+							//	'after'  => 'After Text',
+						),
+
 						//NINJA FORMS
 						array(
 							'type'        => 'fieldset',
@@ -364,13 +373,14 @@ class All_In_One_Analytics_Admin {
 							)
 						),
 						//OTHER SETTINGS
-						array(
-							'id'          => 'forms_trigger_identify_calls',
-							'type'        => 'switcher',
-							'default'     => 'no',
-							'title'       => 'Update user traits when forms are submitted?',
-							'description' => 'ie, if a form has user info first name, last name, email, etc... we will make an identify call. Can be useful but can also cause unexpected issues.'
-						)
+						//TODO test
+						/*	array(
+								'id'          => 'forms_trigger_identify_calls',
+								'type'        => 'switcher',
+								'default'     => 'no',
+								'title'       => 'Update user traits when forms are submitted?',
+								'description' => 'ie, if a form has user info first name, last name, email, etc... we will make an identify call. Can be useful but can also cause unexpected issues.'
+							)*/
 					)
 				),
 
@@ -1267,7 +1277,7 @@ class All_In_One_Analytics_Admin {
 										'id'         => 'track_assignments_fieldset',
 										'title'      => 'Track assignments',
 										'options'    => array(
-											'cols' => 2
+											'cols' => 1
 										),
 										'fields'     => array(
 											array(
@@ -2394,42 +2404,6 @@ class All_In_One_Analytics_Admin {
 				),
 			)
 		);
-		//FILTERING
-		$fields[] = array(
-			'name'        => 'Filtering',
-			'title'       => 'Filtering',
-			'icon'        => 'dashicons-filter',
-			'description' => 'Filtering your tracking',
-			'fields'      => array(
-				array(
-					'id'      => 'track_wp_admin',
-					'type'    => 'switcher',
-					'title'   => 'Track wp-admin area?',
-					'default' => 'no'
-				),
-				array(
-					'id'          => 'ignored_users',
-					'type'        => 'tap_list',
-					'title'       => 'User roles to ignore',
-					'description' => 'These users won\'t be tracked',
-					'options'     => $roles
-				),
-				array(
-					'id'          => 'ignored_categories',
-					'type'        => 'tap_list',
-					'title'       => 'Categories to ignore',
-					'description' => 'Post categories to ignore',
-					'options'     => $categories
-				),
-				array(
-					'id'          => 'ignored_post_types',
-					'type'        => 'tap_list',
-					'title'       => 'Custom post types to ignore',
-					'description' => 'Custom post types to ignore',
-					'options'     => $post_types
-				)
-			)
-		);
 		//USER LEVEL TRACKING
 		$fields[] = array(
 			'name'        => 'Identify',
@@ -2440,19 +2414,12 @@ class All_In_One_Analytics_Admin {
 			),
 			'description' => 'Identify Calls',
 			'fields'      => array(
-				array(
-					'id'          => 'userid_is_email',
-					'type'        => 'switcher',
-					'title'       => 'Use email as the User ID instead of WP user ID. Not best practice.',
-					'description' => ''
-				),
-
-				array(
-					'id'          => 'use_alias',
-					'type'        => 'switcher',
-					'title'       => 'Use Alias calls, for Mixpanel for example',
-					'description' => ''
-				),
+				/*				array(
+									'id'          => 'userid_is_email',
+									'type'        => 'switcher',
+									'title'       => 'Use email as the User ID instead of the WordPress user ID. Not recommended, not best practice. ',
+									'description' => ''
+								),*/
 				array(
 					'id'          => 'included_user_traits',
 					'type'        => 'tap_list',
@@ -2471,7 +2438,6 @@ class All_In_One_Analytics_Admin {
 					'class'      => 'chosen',
 					'style'      => 'display:none;'
 				),
-
 				array(
 					'type'    => 'group',
 					'id'      => 'custom_user_traits',
@@ -2512,6 +2478,48 @@ class All_In_One_Analytics_Admin {
 							)
 						)
 					)
+				),
+				array(
+					'id'          => 'use_alias',
+					'type'        => 'switcher',
+					'title'       => 'Use Alias calls, for Mixpanel for example',
+					'description' => ''
+				)
+			)
+		);
+		//FILTERING
+		$fields[] = array(
+			'name'        => 'Filtering',
+			'title'       => 'Filtering',
+			'icon'        => 'dashicons-filter',
+			'description' => 'Filtering your tracking',
+			'fields'      => array(
+				array(
+					'id'      => 'track_wp_admin',
+					'type'    => 'switcher',
+					'title'   => 'Track wp-admin area?',
+					'default' => 'no'
+				),
+				array(
+					'id'          => 'ignored_users',
+					'type'        => 'tap_list',
+					'title'       => 'User roles to ignore',
+					'description' => 'These users won\'t be tracked',
+					'options'     => $roles
+				),
+				array(
+					'id'          => 'ignored_categories',
+					'type'        => 'tap_list',
+					'title'       => 'Categories to ignore',
+					'description' => 'Post categories to ignore',
+					'options'     => $categories
+				),
+				array(
+					'id'          => 'ignored_post_types',
+					'type'        => 'tap_list',
+					'title'       => 'Custom post types to ignore',
+					'description' => 'Custom post types to ignore',
+					'options'     => $post_types
 				)
 			)
 		);
