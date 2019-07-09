@@ -3024,90 +3024,38 @@ class All_In_One_Analytics {
 		return ( substr( $haystack, - $length ) === $needle );
 	}
 
+	public static function sanitize_array( &$array ) {
+		//https://gist.github.com/drebbits/57df09c034346ed27fa6
+		foreach ( $array as &$value ) {
 
-}
+			if ( ! is_array( $value ) ) {
 
-/*
+				// sanitize if value is not an array
+				$value = sanitize_text_field( $value );
 
-// TODO should make sure users know people will be registered
-// add to UI
-	// perform guest user actions for woocommerce
+			} else {
+
+				// go inside this function again
+				sanitize_array( $value );
+			}
+		}
+
+		return $array;
+
+	}
+
+	/*
+
+	// TODO should make sure users know people will be registered
+	// add to UI then uncomment
 
 	$random_password = wp_generate_password();
 	$user_id         = wp_create_user( $order_email, $random_password, $order_email );
 	wc_update_new_customer_past_orders( $user_id ); //attaches any previous orders
 
 }*/
-/*
- * Get full product details from product id
- *
- * @return array
- */
-/*public static function get_product_details_from_product_id( $product_id ) {
-	// Make a $product object from product ID
-	$product   = wc_get_product( $product_id );
-	$image_url = wp_get_attachment_image_src( get_post_thumbnail_id( $product_id ), 'single-post-thumbnail' );
-	$product->get_meta_data();
-	$properties = array();
-	//	$properties['product_id']         = $product_id;
-	//	$properties['sku']                = $product->get_sku();
-	//	$properties['category']           = $product->get_category_ids(); //array
-	//$properties['name']               = $product->get_name();
-	//	$properties['price']              = $product->get_price();
-	//	$properties['regular_price']      = $product->get_regular_price();
-	//	$properties['sale_price']         = $product->get_sale_price();
-	//	$properties['on_sale_from']       = $product->get_date_on_sale_from();
-	//	$properties['on_sale_to']         = $product->get_date_on_sale_to();
-	//	$properties['total_sales']        = $product->get_total_sales();
-	//	$properties['url']                = get_permalink( $product_id );
-	//	$properties['image_url']          = $image_url[0];
-	//	$properties['slug']               = $product->get_slug();
-	//	$properties['date_created']       = $product->get_date_created();
-	//	$properties['date_modified']      = $product->get_date_modified();
-	//	$properties['status']             = $product->get_status();
-	//	$properties['featured']          = $product->get_featured();
-	//	$properties['catalog_visibility'] = $product->get_catalog_visibility();
-	//	$properties['description']        = $product->get_description();
-	//	$properties['short_description']  = $product->get_short_description();
-	//	$properties['position']           = $product->get_menu_order();
-	//	$properties['tax_status']         = $product->get_tax_status();
-	//	$properties['tax_class']          = $product->get_tax_class();
-	//	$properties['manage_stock']       = $product->get_manage_stock();
-	//	$properties['stock_quantity']     = $product->get_stock_quantity();
-	//	$properties['stock_status']       = $product->get_stock_status();
-	//	$properties['backorders']         = $product->get_backorders();
-	//	$properties['sold_individually']  = $product->get_sold_individually();
-	//	$properties['purchase_note']      = $product->get_purchase_note();
-	//	$properties['shipping_class']     = $product->get_shipping_class_id();
-	//	$properties['weight']             = $product->get_weight();
-	//	$properties['length']             = $product->get_length();
-	//	$properties['width']              = $product->get_width();
-	//	$properties['height']             = $product->get_height();
-	//	$properties['dimensions']         = $product->get_dimensions();
-	//	$properties['upsell_ids']         = $product->get_upsell_ids();
-	//	$properties['cross_sell_ids']     = $product->get_cross_sell_ids();
-	//	$properties['parent_id']          = $product->get_parent_id();
-	//	$properties['variations']         = $product->get_attributes();
-	//	$properties['default_variation']  = $product->get_default_attributes();
-	//	$properties['categories']         = $product->get_categories();
-	//	$properties['category_ids']       = $product->get_category_ids();
-	//	$properties['tag_ids']            = $product->get_tag_ids();
-	//	$properties['downloads']          = $product->get_downloads();
-	//	$properties['download_expiry']    = $product->get_download_expiry();
-	//	$properties['downloadable']       = $product->get_downloadable();
-	//	$properties['download_limit']     = $product->get_download_limit();
-	//	$properties['image_id']           = $product->get_image_id();
-	//	$properties['image']              = $product->get_image();
-	//	$properties['gallery_image_ids']  = $product->get_gallery_image_ids();
-	//	$properties['reviews_allowed']    = $product->get_reviews_allowed();
-	//	$properties['rating_count']       = $product->get_rating_counts();
-	//	$properties['average_rating']     = $product->get_average_rating();
-	$properties['review_count'] = $product->get_review_count();
 
-	//clean and return
-	$properties = array_filter( $properties );
+}
 
-	return $properties;
 
-}*/
 

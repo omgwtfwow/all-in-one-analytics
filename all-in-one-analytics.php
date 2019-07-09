@@ -26,13 +26,13 @@ if ( ! defined( 'WPINC' ) ) {
 }
 
 
-define( 'PLUGIN_NAME_PLUGIN_NAME', 'all-in-one-analytics' );
+define( 'ALL_IN_ONE_ANALYTICS_PLUGIN_NAME', 'all-in-one-analytics' );
 
 /**
  * Store plugin base dir, for easier access later from other classes.
  * (eg. Include, pubic or admin)
  */
-define( 'PLUGIN_NAME_BASE_DIR', plugin_dir_path( __FILE__ ) );
+define( 'ALL_IN_ONE_ANALYTICS_BASE_DIR', plugin_dir_path( __FILE__ ) );
 
 /**
  */
