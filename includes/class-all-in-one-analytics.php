@@ -2901,6 +2901,45 @@ class All_In_One_Analytics {
 	}
 
 	/**
+	 * Prepare and make db query
+	 *
+	 * @param $data_id
+	 *
+	 * @return string|null
+	 */
+	public static function get_data_from_data_id( $data_id ) {
+		global $wpdb;
+
+		return $wpdb->get_var( $wpdb->prepare(
+			" SELECT data FROM {$wpdb->prefix}all_in_one_analytics WHERE data_id = %d ",
+			$data_id
+		) );
+	}
+
+	/**
+	 * Write to db
+	 *
+	 * @param $data_id string
+	 * @param $data mixed
+	 * @param string $flag
+	 */
+	public static function insert_data_into_db( $data_id, $data, $flag = '' ) {
+
+		global $wpdb;
+		$table_name = $wpdb->prefix . 'all_in_one_analytics';
+		$wpdb->insert(
+			$table_name,
+			array(
+				'time'    => current_time( 'mysql' ),
+				'data'    => $data,
+				'data_id' => $data_id,
+				'flag'    => $flag
+			)
+		);
+
+	}
+
+	/**
 	 * Helper function, essentially a replica of stripslashes_deep, but for esc_js.
 	 *
 	 * @param mixed $value Handles arrays, strings and objects that we are trying to escape for JS.
@@ -2985,44 +3024,6 @@ class All_In_One_Analytics {
 		return ( substr( $haystack, - $length ) === $needle );
 	}
 
-	/**
-	 * Prepare and make db query
-	 *
-	 * @param $data_id
-	 *
-	 * @return string|null
-	 */
-	public static function get_data_from_data_id( $data_id ) {
-		global $wpdb;
-
-		return $wpdb->get_var( $wpdb->prepare(
-			" SELECT data FROM {$wpdb->prefix}all_in_one_analytics WHERE data_id = %d ",
-			$data_id
-		) );
-	}
-
-	/**
-	 * Write to db
-	 *
-	 * @param $data_id string
-	 * @param $data mixed
-	 * @param string $flag
-	 */
-	public static function insert_data_into_db( $data_id, $data, $flag = '' ) {
-
-		global $wpdb;
-		$table_name = $wpdb->prefix . 'all_in_one_analytics';
-		$wpdb->insert(
-			$table_name,
-			array(
-				'time'    => current_time( 'mysql' ),
-				'data'    => $data,
-				'data_id' => $data_id,
-				'flag'    => $flag
-			)
-		);
-
-	}
 
 }
 

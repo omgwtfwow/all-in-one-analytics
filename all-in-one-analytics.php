@@ -8,16 +8,16 @@
  * registers the activation and deactivation functions, and defines a function
  * that starts the plugin.
  *
- * @link              https://www.juangonzalez.com.au
+ * @link              https://in8.io
  * @since             1.0.0
  * @package           All_In_One_Analytics
  *
  * @wordpress-plugin
  * Plugin Name:       All in One Analytics
- * Plugin URI:        https://in8.io
+ * Plugin URI:        https://github.com/omgwtfwow/all-in-one-analytics
  * Description:       All your analytics stuff sorted.
  * Version:           1.0.0
- * Author:            Juan Gonzalez
+ * Author:            Juan González
  * Author URI:        https://www.juangonzalez.com.au
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt

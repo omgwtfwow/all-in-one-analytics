@@ -2,20 +2,20 @@
 Contributors: juanin8
 Donate link: https://www.juangonzalez.com.au
 Tags: analytics, tracking, google analytics, google adwords, google tag manager, facebook pixel, zapier
-Requires at least: 3.0.1
-Tested up to: 3.4
-Stable tag: 5.3
+Requires at least: 4
+Tested up to: 5.2.2
+Stable tag: trunk
 Requires PHP: 5.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-All your analytics stuff sorted. User-level tracking for WordPress. Send events to Google Analytics, Facebook Pixel, Zapier, Google Ads, Google Tag Manager... and more soon.
+All your analytics stuff sorted. Send events from your WordPress plugins to Google Analytics, Facebook Pixel, Zapier, Google Ads, Google Tag Manager... and more soon.
 
 == Description ==
 
 Version 1!
 
-Trying to bring user-level analytics to WordPress.
+Trying to improve user-level analytics and tracking for WordPress site owners.
 
 All of the tracking is based on user IDs for both anonymous and registered users.
 
