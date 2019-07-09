@@ -52,7 +52,7 @@ class All_In_One_Analytics_Identify {
 			}
 			?>
             <script type="text/javascript">
-                analytics.identify( <?php
+				analytics.identify( <?php
 					echo '' . All_In_One_Analytics::esc_js_deep( $user_id ) . '';
 					?><?php
 					if ( ! empty( $traits ) ) {
@@ -70,7 +70,7 @@ class All_In_One_Analytics_Identify {
 			if ( $settings['use_alias'] === "yes" ) {
 				?>
                 <script type="text/javascript">
-                    analytics.alias("<?php
+					analytics.alias("<?php
 						echo All_In_One_Analytics::esc_js_deep( $user_id );
 						?>");
                 </script><?php

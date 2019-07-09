@@ -50,7 +50,7 @@ class All_In_One_Analytics_Track {
 						?>
                         <script type="text/javascript">
 
-                            analytics.track(<?php
+							analytics.track(<?php
 								echo '"' . All_In_One_Analytics::esc_js_deep( $track['event'] ) . '"';
 								?><?php
 								if ( ! empty( $track['properties'] ) ) {
@@ -79,7 +79,7 @@ class All_In_One_Analytics_Track {
 						?>
                         <script type="text/javascript">
 
-                            analytics.track(<?php
+							analytics.track(<?php
 								echo '"' . All_In_One_Analytics::esc_js_deep( $track['event'] ) . '"';
 								?><?php
 								if ( ! empty( $track['properties'] ) ) {
@@ -92,9 +92,9 @@ class All_In_One_Analytics_Track {
 									echo ', ' . json_encode( All_In_One_Analytics::esc_js_deep( $track['options'] ) );
 								}
 								?>);
-                            if (!Cookies.get('aio_analytics_clear')) {
-                                Cookies.set('aio_analytics_clear', true);
-                            }
+							if (!Cookies.get('aio_analytics_clear')) {
+								Cookies.set('aio_analytics_clear', true);
+							}
                         </script>
 						<?php
 
