@@ -3009,12 +3009,28 @@ class All_In_One_Analytics {
 		return $return;
 	}
 
+	/**
+	 * Check if a string starts with another string
+	 *
+	 * @param $haystack
+	 * @param $needle
+	 *
+	 * @return bool
+	 */
 	public static function starts_with( $haystack, $needle ) {
 		$length = strlen( $needle );
 
 		return ( substr( $haystack, 0, $length ) === $needle );
 	}
 
+	/**
+	 * Check if a string ends with another string
+	 *
+	 * @param $haystack
+	 * @param $needle
+	 *
+	 * @return bool
+	 */
 	public static function ends_with( $haystack, $needle ) {
 		$length = strlen( $needle );
 		if ( $length == 0 ) {
@@ -3024,6 +3040,7 @@ class All_In_One_Analytics {
 		return ( substr( $haystack, - $length ) === $needle );
 	}
 
+	/**Sanitize multidimensional arrays */
 	public static function sanitize_array( &$array ) {
 		//https://gist.github.com/drebbits/57df09c034346ed27fa6
 		foreach ( $array as &$value ) {
