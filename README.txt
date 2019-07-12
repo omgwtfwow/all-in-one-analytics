@@ -1,8 +1,8 @@
 === All In One Analytics ===
 Contributors: juanin8
-Donate link: https://www.juangonzalez.com.au
-Tags: analytics, tracking, google analytics, google adwords, google tag manager, facebook pixel, zapier
-Requires at least: 4
+Donate link: https://in8.io
+Tags: google analytics, google ads, google tag manager, facebook pixel, zapier, analytics, tracking
+Requires at least: 5
 Tested up to: 5.2.2
 Stable tag: trunk
 Requires PHP: 5.6
@@ -20,6 +20,10 @@ Trying to improve user-level analytics and tracking for WordPress site owners.
 All of the tracking is based on user IDs for both anonymous and registered users.
 
 It's a custom distribution of Segment.com's analytics.js for the client-side events, and my own solution for the server-side events.
+
+**You'll need a recent version of WordPress. I can't guarantee it will work with older versions.**
+
+If you're on an older version and it works for you, let me know.
 
 For version 1 here is what's supported:
 
@@ -65,12 +69,17 @@ e.g.
 1. Upload `all-in-one-analytics.php` to the `/wp-content/plugins/` directory
 2. Activate the plugin through the 'Plugins' menu in WordPress
 3. Go to 'Settings' and choose 'All In One Analytics and Tracking' to configure the plugin
+4. NOTE: Make sure you switch off any existing analytics/pixels
 
 == Frequently Asked Questions ==
 
 = Can this add the basic tracking codes to my site? =
 
 Yes
+
+= Do I have to remove the existing tracking codes? =
+
+Yes or you'll double count events.
 
 = What properties are attached to each event? =
 
@@ -103,20 +112,32 @@ Combining the three results in a consistent tracking model.
 
 This is version 1 of the plugin, but I will try to document how to use it and how to make the most of it :) It is all based on Segment.com's open source analytics.js and their tracking models.
 
+= What is the user level tracking section for? =
+
+It's part of functionality that will be included in the next release, for now it just helps with FB advanced matching.
 
 == Screenshots ==
 
-1. This screen shot description corresponds to screenshot-1.(png|jpg|jpeg|gif).
-2. This is the second screen shot
+1. Settings for WordPress, Forms, WooCommerce etc...
+2. Track core events like comments, sign ups, logins, etc... and name them however you want
+3. Track WooCommerce events including clicks, adds to cart, order events, etc...
+4. A lot of GA settings
+5. A lot of FB pixel settings
+6. A lot of Google Ads/AdWords settings
+7. Choose which user traits to track or add custom ones
+
 
 == Changelog ==
 
-= 1.0 =
-* A change since the previous version.
-* Another change.
+= 1.0.1 =
+- Fixed a php notice
+- Removed a menu item from UI
+- Updated readme, minimum requirements and added screenshots.
 
-= 0.5 =
-* List versions from most recent at top to oldest at bottom.
+= 1.0 =
+Version 1!
+
+
 == Upgrade Notice ==
 
 = 1.0 =

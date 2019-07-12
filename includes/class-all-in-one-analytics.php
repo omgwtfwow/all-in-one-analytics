@@ -326,33 +326,35 @@ class All_In_One_Analytics {
 		}
 
 		//LEARNDASH
-		if ( $settings["learndash_event_settings"]["track_learndash_fieldset"]["track_learndash"] == "yes" ) {
-			if ( $settings["learndash_event_settings"]["track_learndash_fieldset"]["track_enrollments_fieldset"]["track_enrollments"] ) {
-				$this->loader->add_action( 'learndash_update_course_access', $plugin_public, 'enrolled_in_course', 1, 4 );
-				$this->loader->add_action( 'ld_group_postdata_updated', $plugin_public, 'enrolled_in_course_via_group', 1, 4 );
-			}
-			if ( $settings["learndash_event_settings"]["track_learndash_fieldset"]["track_topics_fieldset"]["track_topics"] == "yes" ) {
-				$this->loader->add_action( 'learndash_topic_completed', $plugin_public, 'topic_completed', 9, 1 );
+		if ( isset( $settings["learndash_event_settings"]["track_learndash_fieldset"]["track_learndash"] ) ) {
+
+			if ( $settings["learndash_event_settings"]["track_learndash_fieldset"]["track_learndash"] == "yes" ) {
+				if ( $settings["learndash_event_settings"]["track_learndash_fieldset"]["track_enrollments_fieldset"]["track_enrollments"] ) {
+					$this->loader->add_action( 'learndash_update_course_access', $plugin_public, 'enrolled_in_course', 1, 4 );
+					$this->loader->add_action( 'ld_group_postdata_updated', $plugin_public, 'enrolled_in_course_via_group', 1, 4 );
+				}
+				if ( $settings["learndash_event_settings"]["track_learndash_fieldset"]["track_topics_fieldset"]["track_topics"] == "yes" ) {
+					$this->loader->add_action( 'learndash_topic_completed', $plugin_public, 'topic_completed', 9, 1 );
+
+				}
+				if ( $settings["learndash_event_settings"]["track_learndash_fieldset"]["track_lessons_fieldset"]["track_lessons"] == "yes" ) {
+					$this->loader->add_action( 'learndash_lesson_completed', $plugin_public, 'lesson_completed', 9, 1 );
+
+				}
+				if ( $settings["learndash_event_settings"]["track_learndash_fieldset"]["track_courses_fieldset"]["track_courses"] == "yes" ) {
+					$this->loader->add_action( 'learndash_course_completed', $plugin_public, 'course_completed', 1, 1 );
+
+				}
+				if ( $settings["learndash_event_settings"]["track_learndash_fieldset"]["track_quizzes_fieldset"]["track_quizzes"] ) {
+					$this->loader->add_action( 'learndash_quiz_completed', $plugin_public, 'quiz_completed', 9, 2 );
+				}
+
+				if ( $settings["learndash_event_settings"]["track_learndash_fieldset"]["track_assignments_fieldset"]["track_assignments"] ) {
+					$this->loader->add_action( 'learndash_assignment_uploaded', $plugin_public, 'assignment_uploaded', 9, 1 );
+				}
 
 			}
-			if ( $settings["learndash_event_settings"]["track_learndash_fieldset"]["track_lessons_fieldset"]["track_lessons"] == "yes" ) {
-				$this->loader->add_action( 'learndash_lesson_completed', $plugin_public, 'lesson_completed', 9, 1 );
-
-			}
-			if ( $settings["learndash_event_settings"]["track_learndash_fieldset"]["track_courses_fieldset"]["track_courses"] == "yes" ) {
-				$this->loader->add_action( 'learndash_course_completed', $plugin_public, 'course_completed', 1, 1 );
-
-			}
-			if ( $settings["learndash_event_settings"]["track_learndash_fieldset"]["track_quizzes_fieldset"]["track_quizzes"] ) {
-				$this->loader->add_action( 'learndash_quiz_completed', $plugin_public, 'quiz_completed', 9, 2 );
-			}
-
-			if ( $settings["learndash_event_settings"]["track_learndash_fieldset"]["track_assignments_fieldset"]["track_assignments"] ) {
-				$this->loader->add_action( 'learndash_assignment_uploaded', $plugin_public, 'assignment_uploaded', 9, 1 );
-			}
-
 		}
-
 	}
 
 	/**

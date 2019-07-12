@@ -1250,6 +1250,7 @@ if ( ! class_exists( 'Exopite_Simple_Options_Framework' ) ) :
 						if ( ! in_array( $value['type'], $fields ) && ! empty( $value['type'] ) ) {
 
 							$fields[ $value['type'] ] = array(
+								//FIXME Notice: Undefined index: id
 								'id'   => $value['id'],
 								'type' => $value['type'],
 							);

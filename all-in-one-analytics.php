@@ -11,7 +11,7 @@
  * Plugin Name:       All in One Analytics
  * Plugin URI:        https://github.com/omgwtfwow/all-in-one-analytics
  * Description:       All your analytics stuff sorted.
- * Version:           1.0.0
+ * Version:           1.0.1
  * Author:            Juan González
  * Author URI:        https://www.juangonzalez.com.au
  * License:           GPL-2.0+
@@ -36,7 +36,7 @@ define( 'ALL_IN_ONE_ANALYTICS_BASE_DIR', plugin_dir_path( __FILE__ ) );
 
 /**
  */
-define( 'ALL_IN_ONE_ANALYTICS_VERSION', '1.0.0' );
+define( 'ALL_IN_ONE_ANALYTICS_VERSION', '1.0.1' );
 
 /**
  * The code that runs during plugin activation.

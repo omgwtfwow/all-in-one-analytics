@@ -1316,6 +1316,7 @@ class All_In_One_Analytics_Admin {
 					'id'          => 'include_user_ids',
 					'type'        => 'switcher',
 					'title'       => 'Add userId and email as properties to each event.',
+					'default'     => 'no',
 					'description' => 'Some email tools require this in order to attribute events to each user properly.'
 				),
 				array(
@@ -2481,7 +2482,7 @@ class All_In_One_Analytics_Admin {
 				),
 				array(
 					'id'          => 'use_alias',
-					'type'        => 'switcher',
+					'type'        => 'hidden',
 					'title'       => 'Use Alias calls, for Mixpanel for example',
 					'description' => ''
 				)
